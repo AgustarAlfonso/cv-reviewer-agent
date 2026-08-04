@@ -132,3 +132,16 @@
   background-color: #a0aec0;
   cursor: not-allowed;
 }
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.submit-button.secondary {
+  background-color: #38b2ac;
+}
+
+.submit-button.secondary:hover:not(:disabled) {
+  background-color: #319795;
+}

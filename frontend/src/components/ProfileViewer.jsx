@@ -10,14 +10,14 @@ import React from 'react';
  */
 const ProfileViewer = ({ profile, onEdit }) => {
   const { 
-    basic_info, 
-    education,
-    work_experience,
-    org_experience,
-    projects, 
-    publications,
-    certificates 
-  } = profile;
+    basic_info = {}, 
+    education = [],
+    work_experience = [],
+    org_experience = [],
+    projects = [], 
+    publications = [],
+    certificates = [] 
+  } = profile || {};
 
   // Helper to render newline-separated string as a bulleted list
   const renderBullets = (text) => {

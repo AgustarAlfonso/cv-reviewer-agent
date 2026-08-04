@@ -32,10 +32,15 @@ const UploadForm = ({ onAnalyze, isLoading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!file) {
-      setError('A CV (PDF) is required.');
+      setError('A CV (PDF) is required for this option.');
       return;
     }
     onAnalyze(file, jobDescription);
+  };
+
+  const handleProfileAnalyze = () => {
+    setError('');
+    onAnalyze(null, jobDescription);
   };
 
   const handleDragOver = (e) => {
@@ -107,9 +112,14 @@ const UploadForm = ({ onAnalyze, isLoading }) => {
           ></textarea>
         </div>
 
-        <button type="submit" disabled={!file || isLoading} className="submit-button">
-          {isLoading ? 'Analyzing...' : 'Analyze CV'}
-        </button>
+        <div className="button-group">
+          <button type="submit" disabled={!file || isLoading} className="submit-button">
+            {isLoading && file ? 'Analyzing CV...' : 'Analyze Uploaded CV'}
+          </button>
+          <button type="button" disabled={isLoading} className="submit-button secondary" onClick={handleProfileAnalyze}>
+            {isLoading && !file ? 'Analyzing Profile...' : 'Analyze Master Profile Only'}
+          </button>
+        </div>
       </form>
     </div>
   );

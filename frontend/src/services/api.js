@@ -12,7 +12,9 @@ const API_BASE_URL = 'http://localhost:8000';
  */
 export const analyzeCV = async (file, jobDescription) => {
   const formData = new FormData();
-  formData.append('cv_file', file);
+  if (file) {
+    formData.append('cv_file', file);
+  }
   
   if (jobDescription) {
     formData.append('job_description', jobDescription);

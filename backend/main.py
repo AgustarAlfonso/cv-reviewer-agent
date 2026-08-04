@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 import os
 import json
+from typing import Optional
 from schemas import AnalysisResponse, MasterProfile
 from parser import extract_text_from_pdf
 from analyzer import analyze_cv, extract_profile_from_cv
@@ -71,14 +72,15 @@ def update_master_profile(profile: MasterProfile):
 
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_endpoint(
-    cv_file: UploadFile = File(...),
+    cv_file: Optional[UploadFile] = File(None),
     job_description: str = Form(default="")
 ):
     """
     Endpoint to upload a CV (PDF) and an optional job description for analysis.
+    If no CV is uploaded, it analyzes the saved Master Profile instead.
     
     Args:
-        cv_file (UploadFile): The uploaded PDF file containing the CV.
+        cv_file (UploadFile, optional): The uploaded PDF file containing the CV.
         job_description (str, optional): The job description to compare against. Defaults to "".
         
     Returns:
@@ -87,22 +89,24 @@ async def analyze_endpoint(
     Raises:
         HTTPException: If the file is not a PDF, or if parsing/analysis fails.
     """
-    if cv_file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-    
-    try:
-        # Read the uploaded PDF file bytes
-        file_bytes = await cv_file.read()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error reading file: {str(e)}")
+    cv_text = ""
+    if cv_file:
+        if cv_file.content_type != "application/pdf":
+            raise HTTPException(status_code=400, detail="Only PDF files are supported.")
         
-    # Extract text from the PDF
-    try:
-        cv_text = extract_text_from_pdf(file_bytes)
-        if not cv_text.strip():
-            raise ValueError("No text could be extracted from the PDF.")
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"PDF parsing error: {str(e)}")
+        try:
+            # Read the uploaded PDF file bytes
+            file_bytes = await cv_file.read()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error reading file: {str(e)}")
+            
+        # Extract text from the PDF
+        try:
+            cv_text = extract_text_from_pdf(file_bytes)
+            if not cv_text.strip():
+                raise ValueError("No text could be extracted from the PDF.")
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=f"PDF parsing error: {str(e)}")
         
     # Read Master Profile if it exists
     master_profile_data = None
@@ -112,6 +116,9 @@ async def analyze_endpoint(
                 master_profile_data = json.load(f)
         except Exception as e:
             print(f"Warning: Failed to read master profile: {e}")
+
+    if not cv_text and not master_profile_data:
+        raise HTTPException(status_code=400, detail="Must provide either a CV file or have a saved Master Profile.")
 
     # Analyze the CV
     try:
