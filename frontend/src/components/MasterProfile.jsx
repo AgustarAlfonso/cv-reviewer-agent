@@ -101,7 +101,9 @@ const MasterProfile = () => {
       projects: (data.projects || []).map(proj => ({
         name: proj.name || proj.title || '',
         description: proj.description || proj.desc || '',
-        technologies: proj.technologies || proj.tags || []
+        technologies: proj.technologies || proj.tags || [],
+        link: proj.link || proj.demoUrl || '',
+        repo: proj.repo || proj.repoUrl || ''
       })),
       publications: (data.publications || []).map(pub => ({
         title: pub.title || '',
@@ -113,7 +115,8 @@ const MasterProfile = () => {
       certificates: (data.certificates || []).map(cert => ({
         name: cert.name || cert.title || '',
         issuer: cert.issuer || '',
-        date: cert.date || cert.issued || ''
+        date: cert.date || cert.issued || '',
+        link: cert.link || cert.credentialUrl || ''
       }))
     };
     setImportedProfile(formattedData);
@@ -156,8 +159,24 @@ const MasterProfile = () => {
     }
   };
 
+  const mergeArrays = (existingArr, newArr, keyFields) => {
+    const merged = [...existingArr];
+    newArr.forEach(newItem => {
+      // Check if an item with matching key fields already exists
+      const isDuplicate = existingArr.some(existingItem => 
+        keyFields.every(key => 
+          String(existingItem[key] || '').toLowerCase().trim() === String(newItem[key] || '').toLowerCase().trim()
+        )
+      );
+      if (!isDuplicate) {
+        merged.push(newItem);
+      }
+    });
+    return merged;
+  };
+
   const handleMergeImport = (dataToMerge) => {
-    // Smart merge
+    // Smart merge with duplicate prevention
     const mergedProfile = {
       basic_info: {
         name: dataToMerge.basic_info.name || profile.basic_info.name,
@@ -168,12 +187,12 @@ const MasterProfile = () => {
         linkedin: dataToMerge.basic_info.linkedin || profile.basic_info.linkedin,
         portfolio: dataToMerge.basic_info.portfolio || profile.basic_info.portfolio
       },
-      education: [...profile.education, ...dataToMerge.education],
-      work_experience: [...profile.work_experience, ...dataToMerge.work_experience],
-      org_experience: [...profile.org_experience, ...dataToMerge.org_experience],
-      projects: [...profile.projects, ...dataToMerge.projects],
-      publications: [...profile.publications, ...dataToMerge.publications],
-      certificates: [...profile.certificates, ...dataToMerge.certificates]
+      education: mergeArrays(profile.education, dataToMerge.education, ['institution', 'degree']),
+      work_experience: mergeArrays(profile.work_experience, dataToMerge.work_experience, ['company', 'title']),
+      org_experience: mergeArrays(profile.org_experience, dataToMerge.org_experience, ['organization', 'role']),
+      projects: mergeArrays(profile.projects, dataToMerge.projects, ['name']),
+      publications: mergeArrays(profile.publications, dataToMerge.publications, ['title']),
+      certificates: mergeArrays(profile.certificates, dataToMerge.certificates, ['name'])
     };
     
     // Automatically save merged profile

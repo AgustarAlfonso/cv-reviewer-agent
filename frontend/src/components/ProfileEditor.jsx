@@ -192,7 +192,7 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
       <section className="form-section">
         <div className="section-header">
           <h3>Projects</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('projects', { name: '', description: '', technologies: [] })}>+ Add Project</button>
+          <button type="button" className="add-btn" onClick={() => addArrayItem('projects', { name: '', description: '', technologies: [], link: '', repo: '' })}>+ Add Project</button>
         </div>
         {profile.projects.map((proj, index) => (
           <div key={index} className="array-item-card">
@@ -204,6 +204,16 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             <div className="form-group">
               <label>Description</label>
               <textarea rows="3" value={proj.description} onChange={(e) => handleArrayChange('projects', index, 'description', e.target.value)} placeholder="- Developed a web app&#10;- Integrated payment gateway" required></textarea>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Demo Link (Optional)</label>
+                <input type="url" value={proj.link} onChange={(e) => handleArrayChange('projects', index, 'link', e.target.value)} placeholder="https://..." />
+              </div>
+              <div className="form-group">
+                <label>Repository (Optional)</label>
+                <input type="url" value={proj.repo} onChange={(e) => handleArrayChange('projects', index, 'repo', e.target.value)} placeholder="https://github.com/..." />
+              </div>
             </div>
             <div className="form-group">
               <label>Technologies (Comma separated)</label>
@@ -256,7 +266,7 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
       <section className="form-section">
         <div className="section-header">
           <h3>Certificates</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('certificates', { name: '', issuer: '', date: '' })}>+ Add Certificate</button>
+          <button type="button" className="add-btn" onClick={() => addArrayItem('certificates', { name: '', issuer: '', date: '', link: '' })}>+ Add Certificate</button>
         </div>
         {profile.certificates.map((cert, index) => (
           <div key={index} className="array-item-card">
@@ -271,9 +281,15 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
                 <input type="text" value={cert.issuer} onChange={(e) => handleArrayChange('certificates', index, 'issuer', e.target.value)} required />
               </div>
             </div>
-            <div className="form-group">
-              <label>Date</label>
-              <input type="text" value={cert.date} onChange={(e) => handleArrayChange('certificates', index, 'date', e.target.value)} placeholder="e.g. Aug 2023" />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date</label>
+                <input type="text" value={cert.date} onChange={(e) => handleArrayChange('certificates', index, 'date', e.target.value)} placeholder="e.g. Aug 2023" />
+              </div>
+              <div className="form-group">
+                <label>Credential URL (Optional)</label>
+                <input type="url" value={cert.link} onChange={(e) => handleArrayChange('certificates', index, 'link', e.target.value)} placeholder="https://..." />
+              </div>
             </div>
           </div>
         ))}

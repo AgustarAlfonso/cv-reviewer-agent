@@ -112,9 +112,19 @@ Extracts profile data from a CV (PDF) or a legacy JSON file using the Gemini AI.
 - `education`: Academic history and degrees.
 - `work_experience`: Professional employment.
 - `org_experience`: Volunteer, committee, or student organization roles.
-- `projects`: Technical or personal projects.
-- `publications`: Academic papers or published articles.
-- `certificates`: Courses and certifications.
+- `projects`: Technical or personal projects. Includes optional `link` (Demo) and `repo` (Repository) fields.
+- `publications`: Academic papers or published articles. Includes optional `link` field.
+- `certificates`: Courses and certifications. Includes optional `link` (Credential URL) field.
+
+**Smart Merge Deduplication:**
+When importing JSON/PDF data on the frontend, the system performs a Smart Merge to prevent duplicates. It checks for existing items based on key fields:
+- `education`: matched by `institution` and `degree`.
+- `work_experience`: matched by `company` and `title`.
+- `org_experience`: matched by `organization` and `role`.
+- `projects`, `publications`, `certificates`: matched by `name` or `title`.
+
+**Legacy Link Mapping:**
+The AI extraction prompt specifically maps legacy JSON link properties (like `credentialUrl`, `demoUrl`, `repoUrl`) to the new standard schema fields (`link`, `repo`) when parsing unstructured or old data files.
 
 **Basic Info:**
 The profile also includes a `basic_info` object that stores links to `github`, `linkedin`, and `portfolio`.

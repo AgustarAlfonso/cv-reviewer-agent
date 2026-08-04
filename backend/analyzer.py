@@ -106,11 +106,12 @@ You are an expert data extractor. Your task is to extract structured information
 Extract basic information (including github, linkedin, portfolio if available), education, work experiences, organization/volunteer experiences, projects, publications, and certificates.
 If a piece of information is missing, leave the corresponding field empty or as an empty list.
 
-CRITICAL FORMATTING REQUIREMENT:
-For ANY 'description' field across all sections, you MUST format the text as a list of bullet points using a hyphen and a space ('- ') for each point, separated by newlines.
-Example description format:
-- Developed a new feature
-- Increased performance by 20%
+CRITICAL INSTRUCTIONS:
+1. For ANY 'description' field across all sections, you MUST format the text as a list of bullet points using a hyphen and a space ('- ') for each point, separated by newlines.
+   Example description format:
+   - Developed a new feature
+   - Increased performance by 20%
+2. If extracting from JSON data, make sure to map any 'demoUrl', 'repoUrl', 'credentialUrl', or similar link fields to the corresponding 'link' or 'repo' fields in the output schema.
 
 CV Text:
 {cv_text}

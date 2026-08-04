@@ -104,7 +104,11 @@ const ProfileViewer = ({ profile, onEdit }) => {
         <div className="viewer-list">
           {projects.map((proj, idx) => (
             <div key={idx} className="viewer-card">
-              <h5>{proj.name}</h5>
+              <h5>
+                {proj.name}
+                {proj.link && <a href={proj.link} target="_blank" rel="noreferrer" className="pub-link" title="Demo Link">🔗</a>}
+                {proj.repo && <a href={proj.repo} target="_blank" rel="noreferrer" className="pub-link" title="Repository">💻</a>}
+              </h5>
               {renderBullets(proj.description)}
               {proj.technologies && proj.technologies.length > 0 && (
                 <div className="tags">
@@ -141,8 +145,11 @@ const ProfileViewer = ({ profile, onEdit }) => {
         <div className="viewer-list">
           {certificates.map((cert, idx) => (
             <div key={idx} className="viewer-card">
-              <h5>{cert.name}</h5>
-              <p className="issuer">{cert.issuer} • {cert.date}</p>
+              <h5>
+                {cert.name}
+                {cert.link && <a href={cert.link} target="_blank" rel="noreferrer" className="pub-link" title="Credential URL">🔗</a>}
+              </h5>
+              <span className="issuer">{cert.issuer} • {cert.date}</span>
             </div>
           ))}
         </div>

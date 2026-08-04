@@ -69,12 +69,15 @@ class Project(BaseModel):
     name: str
     description: str = Field(description="A detailed description using newline-separated bullet points starting with '- '", default="")
     technologies: List[str] = []
+    link: str = ""
+    repo: str = ""
 
 class Certificate(BaseModel):
     """Certificate entry for the Master Profile."""
     name: str
     issuer: str
     date: str = ""
+    link: str = ""
 
 class Publication(BaseModel):
     """Publication entry for the Master Profile."""
