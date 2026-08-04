@@ -38,6 +38,7 @@ class BasicInfo(BaseModel):
     name: str = ""
     email: str = ""
     phone: str = ""
+    location: str = ""
     summary: str = ""
     github: str = ""
     linkedin: str = ""
@@ -96,3 +97,60 @@ class MasterProfile(BaseModel):
     projects: List[Project] = []
     publications: List[Publication] = []
     certificates: List[Certificate] = []
+
+class CVSectionHeader(BaseModel):
+    name: str
+    headline: str = Field(description="e.g. 'Fresh Graduate | AI Infrastructure & Systems Support'")
+    location: str
+    phone: str
+    email: str
+    portfolio: str = Field(description="e.g. 'portofolio.com'")
+    linkedin: str = Field(description="e.g. 'linkedin.com/in/username'")
+    github: str = Field(description="e.g. 'github.com/username'")
+
+class CVCategorizedSkill(BaseModel):
+    category: str = Field(description="e.g. 'Programming Languages'")
+    items: str = Field(description="e.g. 'Python, Java, JavaScript'")
+
+class CVSectionExperience(BaseModel):
+    role: str
+    company: str
+    duration: str
+    location: str
+    bullets: List[str]
+
+class CVSectionEducation(BaseModel):
+    institution: str
+    degree: str
+    duration: str
+    gpa: str = Field(description="e.g. 'GPA 3.76/4.00'")
+
+class CVSectionProject(BaseModel):
+    name: str
+    context: str = Field(description="e.g. 'Personal Project'")
+    technologies: str = Field(description="e.g. 'Python, LangChain, Docker'")
+    link: str = Field(description="e.g. 'github.com/user/repo'")
+    bullets: List[str]
+
+class CVSectionPublication(BaseModel):
+    citation: str = Field(description="The full citation string of the publication.")
+
+class CVSectionCertification(BaseModel):
+    name: str = Field(description="e.g. 'Belajar Dasar AI'")
+    issuer: str = Field(description="e.g. 'Dicoding Indonesia (Jul 2026)'")
+
+class CVSectionLanguageOther(BaseModel):
+    languages: str = Field(description="e.g. 'Indonesian (Native), English (Fluent)'")
+    other_skills: str = Field(description="e.g. 'Detail-oriented, adaptable'")
+
+class StructuredCV(BaseModel):
+    """The structured ATS-friendly CV tailored to the job description."""
+    header: CVSectionHeader
+    summary: str
+    skills: List[CVCategorizedSkill]
+    experience: List[CVSectionExperience]
+    projects: List[CVSectionProject]
+    publications: List[CVSectionPublication]
+    certifications: List[CVSectionCertification]
+    education: List[CVSectionEducation]
+    languages_other: CVSectionLanguageOther

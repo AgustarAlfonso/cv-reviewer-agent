@@ -99,3 +99,66 @@ export const extractProfileFromCV = async (file) => {
     throw new Error('Failed to extract profile from CV.');
   }
 };
+
+/**
+ * Generates an ATS CV (DOCX format) from the Master Profile based on a job description.
+ * Triggers a file download in the browser.
+ * 
+ * @param {string} jobDescription - The job description text to tailor the CV.
+ * @throws {Error} If the API request fails.
+ */
+export const generateCV = async (jobDescription) => {
+  const formData = new FormData();
+  if (jobDescription) {
+    formData.append('job_description', jobDescription);
+  }
+
+  try {
+    const response = await axios.post(`${API_BASE_URL}/generate/docx`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      responseType: 'blob', // Important for downloading files
+    });
+    
+    // Create a blob from the response
+    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    
+    // Create a link element, use it to download the file, then remove it
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Extract filename from Content-Disposition header if available
+    let fileName = 'Tailored_CV.docx';
+    const contentDisposition = response.headers['content-disposition'];
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (fileNameMatch && fileNameMatch.length === 2) {
+        fileName = fileNameMatch[1];
+      }
+    }
+    
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    
+  } catch (error) {
+    console.error('Error generating CV:', error);
+    
+    // For blob responses, we need to convert the error blob to text to read the detail
+    if (error.response && error.response.data && error.response.data instanceof Blob) {
+       try {
+           const text = await error.response.data.text();
+           const errData = JSON.parse(text);
+           throw new Error(errData.detail || 'Failed to generate CV.');
+       } catch (e) {
+           throw new Error('Failed to generate CV.');
+       }
+    }
+    throw new Error('Failed to connect to the server or generate the CV.');
+  }
+};
+

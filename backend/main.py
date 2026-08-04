@@ -3,15 +3,17 @@ Main entry point for the CVSight FastAPI backend.
 Defines the API routes for CV analysis.
 """
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 import os
 import json
 from typing import Optional
-from schemas import AnalysisResponse, MasterProfile
+from schemas import AnalysisResponse, MasterProfile, StructuredCV
 from parser import extract_text_from_pdf
-from analyzer import analyze_cv, extract_profile_from_cv
+from analyzer import analyze_cv, extract_profile_from_cv, generate_cv_from_profile
+from docx_generator import create_docx_from_structured_cv
 
 # Load environment variables from .env if present
 load_dotenv()
@@ -157,3 +159,39 @@ async def extract_profile_endpoint(cv_file: UploadFile = File(...)):
         return profile_result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Profile extraction failed: {str(e)}")
+
+@app.post("/generate/docx")
+async def generate_cv_docx_endpoint(job_description: str = Form(default="")):
+    """
+    Endpoint to generate an ATS-friendly CV (.docx) based on the Master Profile and a Job Description.
+    """
+    master_profile_data = None
+    if os.path.exists(MASTER_PROFILE_PATH):
+        try:
+            with open(MASTER_PROFILE_PATH, "r", encoding="utf-8") as f:
+                master_profile_data = json.load(f)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to read master profile: {str(e)}")
+            
+    if not master_profile_data:
+        raise HTTPException(status_code=400, detail="Master Profile not found. Please create one first.")
+        
+    try:
+        # Generate structured JSON from Gemini
+        structured_cv = generate_cv_from_profile(job_description, master_profile_data)
+        
+        # Convert JSON to DOCX bytes stream
+        doc_stream = create_docx_from_structured_cv(structured_cv)
+        
+        # Return as downloadable file
+        return StreamingResponse(
+            doc_stream, 
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": "attachment; filename=Tailored_CV.docx",
+                "Access-Control-Expose-Headers": "Content-Disposition"
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"CV generation failed: {str(e)}")
+

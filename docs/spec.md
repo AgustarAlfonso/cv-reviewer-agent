@@ -21,6 +21,7 @@ This project emphasizes an agentic workflow: PDF parsing → LLM reasoning → s
    - Feedback per section (summary, experience, skills).
    - Specific and actionable improvement suggestions (not generic).
    - Tailoring suggestions (recommending experiences/projects from the Master Profile to add or swap into the CV based on the job description).
+25. ATS CV Generator (Export to DOCX): Programmatically builds a single-column, ATS-friendly Word document based strictly on the user's Master Profile.
 
 ### Out of Scope (For Future Iterations)
 - Multi-file batch upload.
@@ -45,6 +46,7 @@ cv-reviewer-agent/
 │   ├── main.py              # FastAPI entrypoint
 │   ├── parser.py            # PDF text extraction (PyMuPDF)
 │   ├── analyzer.py          # Gemini API logic & prompt engineering
+│   ├── docx_generator.py    # Python-docx generation for ATS-friendly CV
 │   ├── schemas.py           # Pydantic models (request/response)
 │   ├── master_profile.json  # Local storage for Master Profile (ignored by git)
 │   └── requirements.txt
@@ -54,7 +56,8 @@ cv-reviewer-agent/
 │   │   │   ├── MasterProfile.jsx    # Orchestrates View, Edit, and Import
 │   │   │   ├── ProfileViewer.jsx    # Read-only UI for profile
 │   │   │   ├── ProfileEditor.jsx    # Form UI for editing profile
-│   │   │   └── ImportReviewer.jsx   # Smart Merge UI for importing JSON/PDF
+│   │   │   ├── ImportReviewer.jsx   # Smart Merge UI for importing JSON/PDF
+│   │   │   └── CVGenerator.jsx      # UI to trigger CV DOCX generation
 │   │   ├── services/
 │   │   │   └── api.js               # API client
 │   │   └── App.jsx
@@ -127,10 +130,15 @@ When importing JSON/PDF data on the frontend, the system performs a Smart Merge 
 The AI extraction prompt specifically maps legacy JSON link properties (like `credentialUrl`, `demoUrl`, `repoUrl`) to the new standard schema fields (`link`, `repo`) when parsing unstructured or old data files.
 
 **Basic Info:**
-The profile also includes a `basic_info` object that stores links to `github`, `linkedin`, and `portfolio`.
+The profile also includes a `basic_info` object that stores `location`, along with links to `github`, `linkedin`, and `portfolio`.
+
+### `GET /generate/docx`
+Generates an ATS-friendly CV based on the current local Master Profile.
+**Response:** Binary stream of a DOCX file (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`).
 
 ## AI Agent / Prompt Engineering Guidelines
 - Must use structured output (function calling / JSON schema) to ensure a valid JSON response from the LLM, avoiding manual parsing of free text.
 - The prompt must instruct the LLM to provide a score and feedback that is **specific to the CV content**, avoiding generic templates.
 - **Formatting Constraints**: The LLM must be explicitly prompted to return all `description` fields as newline-separated bullet points (starting with `- `). This enables the frontend to automatically render clean HTML lists (`<ul><li>`) instead of unreadable blocks of text.
 - If `job_description` is empty, the LLM should provide a general CV quality analysis (ATS-friendliness, clarity, structure) without keyword comparison.
+- **GROUND-TRUTH RULE**: When extracting or tailoring content, the LLM must strictly adhere to the facts presented in the Master Profile. It must never invent, hallucinate, or creatively alter the facts (e.g., location, graduation status) beyond what is explicitly stated.

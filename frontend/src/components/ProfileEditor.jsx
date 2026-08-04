@@ -68,9 +68,15 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             <input type="email" name="email" value={profile.basic_info.email} onChange={handleBasicInfoChange} placeholder="john@example.com" />
           </div>
         </div>
-        <div className="form-group">
-          <label>Phone</label>
-          <input type="text" name="phone" value={profile.basic_info.phone} onChange={handleBasicInfoChange} placeholder="+62 812 3456 7890" />
+        <div className="form-row">
+          <div className="form-group">
+            <label>Phone</label>
+            <input type="text" name="phone" value={profile.basic_info.phone} onChange={handleBasicInfoChange} placeholder="+62 812 3456 7890" />
+          </div>
+          <div className="form-group">
+            <label>Location</label>
+            <input type="text" name="location" value={profile.basic_info.location || ''} onChange={handleBasicInfoChange} placeholder="City, Country" />
+          </div>
         </div>
         <div className="form-row">
           <div className="form-group">

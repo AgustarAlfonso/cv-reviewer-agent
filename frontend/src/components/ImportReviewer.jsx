@@ -64,6 +64,7 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
           <div className="reviewer-card readonly">
             <p><strong>Name:</strong> {importedProfile.basic_info.name}</p>
             <p><strong>Email:</strong> {importedProfile.basic_info.email}</p>
+            {importedProfile.basic_info.location && <p><strong>Location:</strong> {importedProfile.basic_info.location}</p>}
           </div>
         </div>
       )}

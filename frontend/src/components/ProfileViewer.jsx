@@ -43,7 +43,8 @@ const ProfileViewer = ({ profile, onEdit }) => {
         <div className="viewer-basic-info">
           <h3>{basic_info.name || 'Anonymous User'}</h3>
           <p>
-            {basic_info.email && <span>📧 {basic_info.email}</span>}
+            {basic_info.location && <span>📍 {basic_info.location}</span>}
+            {basic_info.email && <span style={{marginLeft: '15px'}}>📧 {basic_info.email}</span>}
             {basic_info.phone && <span style={{marginLeft: '15px'}}>📱 {basic_info.phone}</span>}
           </p>
           <div className="viewer-social-links">

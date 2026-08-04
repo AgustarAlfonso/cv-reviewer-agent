@@ -13,7 +13,7 @@ import './MasterProfile.css';
  */
 const MasterProfile = () => {
   const [profile, setProfile] = useState({
-    basic_info: { name: '', email: '', phone: '', summary: '', github: '', linkedin: '', portfolio: '' },
+    basic_info: { name: '', email: '', phone: '', location: '', summary: '', github: '', linkedin: '', portfolio: '' },
     education: [],
     work_experience: [],
     org_experience: [],
@@ -40,7 +40,7 @@ const MasterProfile = () => {
     try {
       const data = await getProfile();
       setProfile({
-        basic_info: data.basic_info || { name: '', email: '', phone: '', summary: '', github: '', linkedin: '', portfolio: '' },
+        basic_info: data.basic_info || { name: '', email: '', phone: '', location: '', summary: '', github: '', linkedin: '', portfolio: '' },
         education: data.education || [],
         work_experience: data.work_experience || data.experiences || [],
         org_experience: data.org_experience || [],
@@ -79,7 +79,7 @@ const MasterProfile = () => {
 
   const processImportedData = (data) => {
     const formattedData = {
-      basic_info: data.basic_info || { name: '', email: '', phone: '', summary: '', github: '', linkedin: '', portfolio: '' },
+      basic_info: data.basic_info || { name: '', email: '', phone: '', location: '', summary: '', github: '', linkedin: '', portfolio: '' },
       education: (data.education || []).map(edu => ({
         institution: edu.institution || '',
         degree: edu.degree || '',
@@ -182,6 +182,7 @@ const MasterProfile = () => {
         name: dataToMerge.basic_info.name || profile.basic_info.name,
         email: dataToMerge.basic_info.email || profile.basic_info.email,
         phone: dataToMerge.basic_info.phone || profile.basic_info.phone,
+        location: dataToMerge.basic_info.location || profile.basic_info.location,
         summary: dataToMerge.basic_info.summary || profile.basic_info.summary,
         github: dataToMerge.basic_info.github || profile.basic_info.github,
         linkedin: dataToMerge.basic_info.linkedin || profile.basic_info.linkedin,

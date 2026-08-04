@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import UploadForm from './components/UploadForm';
 import AnalysisResults from './components/AnalysisResults';
 import MasterProfile from './components/MasterProfile';
+import CVGenerator from './components/CVGenerator';
 import { analyzeCV } from './services/api';
 
 /**
@@ -53,6 +54,12 @@ function App() {
           >
             Master Profile
           </button>
+          <button 
+            className={`tab-btn ${activeTab === 'generator' ? 'active' : ''}`}
+            onClick={() => setActiveTab('generator')}
+          >
+            CV Generator
+          </button>
         </nav>
       </header>
 
@@ -64,9 +71,13 @@ function App() {
           <UploadForm onAnalyze={handleAnalyze} isLoading={isLoading} />
           <AnalysisResults result={result} />
         </main>
-      ) : (
+      ) : activeTab === 'profile' ? (
         <main>
           <MasterProfile />
+        </main>
+      ) : (
+        <main>
+          <CVGenerator />
         </main>
       )}
     </div>
