@@ -48,7 +48,8 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
       org_experience: importedProfile.org_experience.filter((_, i) => selectedOrgExp.includes(i)),
       projects: importedProfile.projects.filter((_, i) => selectedProjects.includes(i)),
       publications: importedProfile.publications.filter((_, i) => selectedPublications.includes(i)),
-      certificates: importedProfile.certificates.filter((_, i) => selectedCertificates.includes(i))
+      certificates: importedProfile.certificates.filter((_, i) => selectedCertificates.includes(i)),
+      skills: importedProfile.skills || []
     };
     onMerge(dataToMerge);
   };
@@ -65,6 +66,19 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
             <p><strong>Name:</strong> {importedProfile.basic_info.name}</p>
             <p><strong>Email:</strong> {importedProfile.basic_info.email}</p>
             {importedProfile.basic_info.location && <p><strong>Location:</strong> {importedProfile.basic_info.location}</p>}
+          </div>
+        </div>
+      )}
+
+      {importedProfile.skills && importedProfile.skills.length > 0 && (
+        <div className="reviewer-section">
+          <h4>Skills (Will be merged with existing)</h4>
+          <div className="reviewer-card readonly">
+            <div className="tags" style={{ marginTop: '0' }}>
+              {importedProfile.skills.map((skill, idx) => (
+                <span key={idx} className="tag">{skill}</span>
+              ))}
+            </div>
           </div>
         </div>
       )}

@@ -14,6 +14,7 @@ import './MasterProfile.css';
 const MasterProfile = () => {
   const [profile, setProfile] = useState({
     basic_info: { name: '', email: '', phone: '', location: '', summary: '', github: '', linkedin: '', portfolio: '' },
+    skills: [],
     education: [],
     work_experience: [],
     org_experience: [],
@@ -41,6 +42,7 @@ const MasterProfile = () => {
       const data = await getProfile();
       setProfile({
         basic_info: data.basic_info || { name: '', email: '', phone: '', location: '', summary: '', github: '', linkedin: '', portfolio: '' },
+        skills: data.skills || [],
         education: data.education || [],
         work_experience: data.work_experience || data.experiences || [],
         org_experience: data.org_experience || [],
@@ -59,6 +61,14 @@ const MasterProfile = () => {
   const handleSaveProfile = async (updatedProfile) => {
     setIsSaving(true);
     setMessage('');
+
+    // Auto-aggregate skills from projects and certificates
+    const projectTechs = (updatedProfile.projects || []).flatMap(p => p.technologies || []);
+    const certSkills = (updatedProfile.certificates || []).flatMap(c => c.skills || []);
+    const currentSkills = updatedProfile.skills || [];
+    
+    updatedProfile.skills = Array.from(new Set([...currentSkills, ...projectTechs, ...certSkills])).filter(s => s.trim() !== '');
+
     try {
       await updateProfile(updatedProfile);
       setProfile(updatedProfile);
@@ -80,6 +90,7 @@ const MasterProfile = () => {
   const processImportedData = (data) => {
     const formattedData = {
       basic_info: data.basic_info || { name: '', email: '', phone: '', location: '', summary: '', github: '', linkedin: '', portfolio: '' },
+      skills: data.skills || [],
       education: (data.education || []).map(edu => ({
         institution: edu.institution || '',
         degree: edu.degree || '',
@@ -116,7 +127,8 @@ const MasterProfile = () => {
         name: cert.name || cert.title || '',
         issuer: cert.issuer || '',
         date: cert.date || cert.issued || '',
-        link: cert.link || cert.credentialUrl || ''
+        link: cert.link || cert.credentialUrl || '',
+        skills: cert.skills || cert.technologies || []
       }))
     };
     setImportedProfile(formattedData);
@@ -188,6 +200,7 @@ const MasterProfile = () => {
         linkedin: dataToMerge.basic_info.linkedin || profile.basic_info.linkedin,
         portfolio: dataToMerge.basic_info.portfolio || profile.basic_info.portfolio
       },
+      skills: Array.from(new Set([...(profile.skills || []), ...(dataToMerge.skills || [])])),
       education: mergeArrays(profile.education, dataToMerge.education, ['institution', 'degree']),
       work_experience: mergeArrays(profile.work_experience, dataToMerge.work_experience, ['company', 'title']),
       org_experience: mergeArrays(profile.org_experience, dataToMerge.org_experience, ['organization', 'role']),

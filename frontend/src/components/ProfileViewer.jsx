@@ -58,6 +58,19 @@ const ProfileViewer = ({ profile, onEdit }) => {
       </div>
 
       <div className="viewer-section">
+        <h4>Skills</h4>
+        {(!profile.skills || profile.skills.length === 0) ? (
+          <p className="empty-text">No skills added.</p>
+        ) : (
+          <div className="tags" style={{ marginTop: '10px' }}>
+            {profile.skills.map((skill, idx) => (
+              <span key={idx} className="tag">{skill}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="viewer-section">
         <h4>Education</h4>
         {education.length === 0 ? <p className="empty-text">No education added.</p> : null}
         <div className="viewer-list">
@@ -151,6 +164,13 @@ const ProfileViewer = ({ profile, onEdit }) => {
                 {cert.link && <a href={cert.link} target="_blank" rel="noreferrer" className="pub-link" title="Credential URL">🔗</a>}
               </h5>
               <span className="issuer">{cert.issuer} • {cert.date}</span>
+              {cert.skills && cert.skills.length > 0 && (
+                <div className="tags" style={{ marginTop: '5px' }}>
+                  {cert.skills.map((skill, i) => (
+                    <span key={i} className="tag">{skill}</span>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

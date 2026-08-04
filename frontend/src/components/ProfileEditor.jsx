@@ -48,6 +48,11 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
     handleArrayChange('projects', projectIndex, 'technologies', techs);
   };
 
+  const handleCertSkillChange = (certIndex, value) => {
+    const skills = value.split(',').map(t => t.trim()).filter(t => t);
+    handleArrayChange('certificates', certIndex, 'skills', skills);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(profile);
@@ -95,6 +100,23 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
         <div className="form-group">
           <label>Professional Summary</label>
           <textarea name="summary" rows="3" value={profile.basic_info.summary} onChange={handleBasicInfoChange} placeholder="A brief summary of your career..."></textarea>
+        </div>
+      </section>
+
+      {/* Skills Section */}
+      <section className="form-section">
+        <h3>Skills</h3>
+        <div className="form-group">
+          <label>Your Skills (Comma separated)</label>
+          <textarea 
+            rows="2" 
+            value={(profile.skills || []).join(', ')} 
+            onChange={(e) => {
+              const skillsArray = e.target.value.split(',').map(s => s.trim()).filter(s => s);
+              setProfile({ ...profile, skills: skillsArray });
+            }} 
+            placeholder="React.js, JavaScript, Python, Communication..."
+          ></textarea>
         </div>
       </section>
 
@@ -272,7 +294,7 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
       <section className="form-section">
         <div className="section-header">
           <h3>Certificates</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('certificates', { name: '', issuer: '', date: '', link: '' })}>+ Add Certificate</button>
+          <button type="button" className="add-btn" onClick={() => addArrayItem('certificates', { name: '', issuer: '', date: '', link: '', skills: [] })}>+ Add Certificate</button>
         </div>
         {profile.certificates.map((cert, index) => (
           <div key={index} className="array-item-card">
@@ -296,6 +318,10 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
                 <label>Credential URL (Optional)</label>
                 <input type="url" value={cert.link} onChange={(e) => handleArrayChange('certificates', index, 'link', e.target.value)} placeholder="https://..." />
               </div>
+            </div>
+            <div className="form-group">
+              <label>Skills/Technologies (Comma separated)</label>
+              <input type="text" value={(cert.skills || []).join(', ')} onChange={(e) => handleCertSkillChange(index, e.target.value)} placeholder="React, Prompt Engineering" />
             </div>
           </div>
         ))}

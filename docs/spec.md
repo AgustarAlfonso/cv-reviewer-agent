@@ -115,9 +115,13 @@ Extracts profile data from a CV (PDF) or a legacy JSON file using the Gemini AI.
 - `education`: Academic history and degrees.
 - `work_experience`: Professional employment.
 - `org_experience`: Volunteer, committee, or student organization roles.
-- `projects`: Technical or personal projects. Includes optional `link` (Demo) and `repo` (Repository) fields.
+- `projects`: Technical or personal projects. Includes optional `link` (Demo), `repo` (Repository), and `technologies` fields.
 - `publications`: Academic papers or published articles. Includes optional `link` field.
-- `certificates`: Courses and certifications. Includes optional `link` (Credential URL) field.
+- `certificates`: Courses and certifications. Includes optional `link` (Credential URL) and `skills` fields.
+- `skills`: A standalone list of technical and soft skills.
+
+**Auto-Aggregation of Skills:**
+The frontend editor automatically aggregates any `technologies` listed in `projects` and `skills` listed in `certificates`, merging them into the main `skills` array upon saving to prevent duplicates and ensure a comprehensive skills list.
 
 **Smart Merge Deduplication:**
 When importing JSON/PDF data on the frontend, the system performs a Smart Merge to prevent duplicates. It checks for existing items based on key fields:

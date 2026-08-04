@@ -79,6 +79,7 @@ class Certificate(BaseModel):
     issuer: str
     date: str = ""
     link: str = ""
+    skills: List[str] = []
 
 class Publication(BaseModel):
     """Publication entry for the Master Profile."""
@@ -91,6 +92,7 @@ class Publication(BaseModel):
 class MasterProfile(BaseModel):
     """The user's complete Master Profile stored locally."""
     basic_info: BasicInfo = Field(default_factory=BasicInfo)
+    skills: List[str] = []
     education: List[Education] = []
     work_experience: List[WorkExperience] = []
     org_experience: List[OrganizationExperience] = []
