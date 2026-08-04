@@ -12,14 +12,20 @@ import React, { useState, useEffect } from 'react';
 const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
   // We keep track of which items are selected to be merged.
   // By default, all items are selected.
-  const [selectedExperiences, setSelectedExperiences] = useState([]);
+  const [selectedEducation, setSelectedEducation] = useState([]);
+  const [selectedWorkExp, setSelectedWorkExp] = useState([]);
+  const [selectedOrgExp, setSelectedOrgExp] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]);
+  const [selectedPublications, setSelectedPublications] = useState([]);
   const [selectedCertificates, setSelectedCertificates] = useState([]);
 
   useEffect(() => {
     if (importedProfile) {
-      setSelectedExperiences(importedProfile.experiences ? importedProfile.experiences.map((_, i) => i) : []);
+      setSelectedEducation(importedProfile.education ? importedProfile.education.map((_, i) => i) : []);
+      setSelectedWorkExp(importedProfile.work_experience ? importedProfile.work_experience.map((_, i) => i) : []);
+      setSelectedOrgExp(importedProfile.org_experience ? importedProfile.org_experience.map((_, i) => i) : []);
       setSelectedProjects(importedProfile.projects ? importedProfile.projects.map((_, i) => i) : []);
+      setSelectedPublications(importedProfile.publications ? importedProfile.publications.map((_, i) => i) : []);
       setSelectedCertificates(importedProfile.certificates ? importedProfile.certificates.map((_, i) => i) : []);
     }
   }, [importedProfile]);
@@ -37,8 +43,11 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
   const handleMerge = () => {
     const dataToMerge = {
       basic_info: importedProfile.basic_info, // We always merge basic info if present
-      experiences: importedProfile.experiences.filter((_, i) => selectedExperiences.includes(i)),
+      education: importedProfile.education.filter((_, i) => selectedEducation.includes(i)),
+      work_experience: importedProfile.work_experience.filter((_, i) => selectedWorkExp.includes(i)),
+      org_experience: importedProfile.org_experience.filter((_, i) => selectedOrgExp.includes(i)),
       projects: importedProfile.projects.filter((_, i) => selectedProjects.includes(i)),
+      publications: importedProfile.publications.filter((_, i) => selectedPublications.includes(i)),
       certificates: importedProfile.certificates.filter((_, i) => selectedCertificates.includes(i))
     };
     onMerge(dataToMerge);
@@ -60,17 +69,51 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
       )}
 
       <div className="reviewer-section">
-        <h4>Work Experience ({importedProfile.experiences.length} found)</h4>
-        {importedProfile.experiences.map((exp, idx) => (
-          <label key={idx} className={`reviewer-card selectable ${selectedExperiences.includes(idx) ? 'selected' : ''}`}>
+        <h4>Education ({importedProfile.education.length} found)</h4>
+        {importedProfile.education.map((edu, idx) => (
+          <label key={idx} className={`reviewer-card selectable ${selectedEducation.includes(idx) ? 'selected' : ''}`}>
             <input 
               type="checkbox" 
-              checked={selectedExperiences.includes(idx)} 
-              onChange={() => toggleSelection(setSelectedExperiences, selectedExperiences, idx)} 
+              checked={selectedEducation.includes(idx)} 
+              onChange={() => toggleSelection(setSelectedEducation, selectedEducation, idx)} 
+            />
+            <div className="card-content">
+              <h5>{edu.institution}</h5>
+              <span className="duration">{edu.degree} ({edu.duration})</span>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      <div className="reviewer-section">
+        <h4>Work Experience ({importedProfile.work_experience.length} found)</h4>
+        {importedProfile.work_experience.map((exp, idx) => (
+          <label key={idx} className={`reviewer-card selectable ${selectedWorkExp.includes(idx) ? 'selected' : ''}`}>
+            <input 
+              type="checkbox" 
+              checked={selectedWorkExp.includes(idx)} 
+              onChange={() => toggleSelection(setSelectedWorkExp, selectedWorkExp, idx)} 
             />
             <div className="card-content">
               <h5>{exp.title} <span className="company-name">at {exp.company}</span></h5>
               <span className="duration">{exp.duration}</span>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      <div className="reviewer-section">
+        <h4>Organization Experience ({importedProfile.org_experience.length} found)</h4>
+        {importedProfile.org_experience.map((org, idx) => (
+          <label key={idx} className={`reviewer-card selectable ${selectedOrgExp.includes(idx) ? 'selected' : ''}`}>
+            <input 
+              type="checkbox" 
+              checked={selectedOrgExp.includes(idx)} 
+              onChange={() => toggleSelection(setSelectedOrgExp, selectedOrgExp, idx)} 
+            />
+            <div className="card-content">
+              <h5>{org.role} <span className="company-name">at {org.organization}</span></h5>
+              <span className="duration">{org.duration}</span>
             </div>
           </label>
         ))}
@@ -88,6 +131,23 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
             <div className="card-content">
               <h5>{proj.name}</h5>
               <p className="description-preview">{proj.description.substring(0, 80)}...</p>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      <div className="reviewer-section">
+        <h4>Publications ({importedProfile.publications.length} found)</h4>
+        {importedProfile.publications.map((pub, idx) => (
+          <label key={idx} className={`reviewer-card selectable ${selectedPublications.includes(idx) ? 'selected' : ''}`}>
+            <input 
+              type="checkbox" 
+              checked={selectedPublications.includes(idx)} 
+              onChange={() => toggleSelection(setSelectedPublications, selectedPublications, idx)} 
+            />
+            <div className="card-content">
+              <h5>{pub.title}</h5>
+              <p className="description-preview">{pub.publisher} • {pub.date}</p>
             </div>
           </label>
         ))}

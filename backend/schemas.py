@@ -39,18 +39,35 @@ class BasicInfo(BaseModel):
     email: str = ""
     phone: str = ""
     summary: str = ""
+    github: str = ""
+    linkedin: str = ""
+    portfolio: str = ""
 
-class Experience(BaseModel):
+class Education(BaseModel):
+    """Education entry for the Master Profile."""
+    institution: str
+    degree: str
+    duration: str = ""
+    description: str = Field(description="A detailed description using newline-separated bullet points starting with '- '", default="")
+
+class WorkExperience(BaseModel):
     """Work experience entry for the Master Profile."""
     title: str
     company: str
     duration: str = ""
-    description: str
+    description: str = Field(description="A detailed description using newline-separated bullet points starting with '- '", default="")
+
+class OrganizationExperience(BaseModel):
+    """Organization/Volunteer experience entry for the Master Profile."""
+    role: str
+    organization: str
+    duration: str = ""
+    description: str = Field(description="A detailed description using newline-separated bullet points starting with '- '", default="")
 
 class Project(BaseModel):
     """Project entry for the Master Profile."""
     name: str
-    description: str
+    description: str = Field(description="A detailed description using newline-separated bullet points starting with '- '", default="")
     technologies: List[str] = []
 
 class Certificate(BaseModel):
@@ -59,9 +76,20 @@ class Certificate(BaseModel):
     issuer: str
     date: str = ""
 
+class Publication(BaseModel):
+    """Publication entry for the Master Profile."""
+    title: str
+    publisher: str
+    date: str = ""
+    link: str = ""
+    description: str = Field(description="A detailed description using newline-separated bullet points starting with '- '", default="")
+
 class MasterProfile(BaseModel):
     """The user's complete Master Profile stored locally."""
     basic_info: BasicInfo = Field(default_factory=BasicInfo)
-    experiences: List[Experience] = []
+    education: List[Education] = []
+    work_experience: List[WorkExperience] = []
+    org_experience: List[OrganizationExperience] = []
     projects: List[Project] = []
+    publications: List[Publication] = []
     certificates: List[Certificate] = []

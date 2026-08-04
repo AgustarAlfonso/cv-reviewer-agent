@@ -13,9 +13,12 @@ import './MasterProfile.css';
  */
 const MasterProfile = () => {
   const [profile, setProfile] = useState({
-    basic_info: { name: '', email: '', phone: '', summary: '' },
-    experiences: [],
+    basic_info: { name: '', email: '', phone: '', summary: '', github: '', linkedin: '', portfolio: '' },
+    education: [],
+    work_experience: [],
+    org_experience: [],
     projects: [],
+    publications: [],
     certificates: []
   });
   
@@ -37,9 +40,12 @@ const MasterProfile = () => {
     try {
       const data = await getProfile();
       setProfile({
-        basic_info: data.basic_info || { name: '', email: '', phone: '', summary: '' },
-        experiences: data.experiences || [],
+        basic_info: data.basic_info || { name: '', email: '', phone: '', summary: '', github: '', linkedin: '', portfolio: '' },
+        education: data.education || [],
+        work_experience: data.work_experience || data.experiences || [],
+        org_experience: data.org_experience || [],
         projects: data.projects || [],
+        publications: data.publications || [],
         certificates: data.certificates || []
       });
     } catch (error) {
@@ -73,17 +79,36 @@ const MasterProfile = () => {
 
   const processImportedData = (data) => {
     const formattedData = {
-      basic_info: data.basic_info || { name: '', email: '', phone: '', summary: '' },
-      experiences: (data.experiences || []).map(exp => ({
+      basic_info: data.basic_info || { name: '', email: '', phone: '', summary: '', github: '', linkedin: '', portfolio: '' },
+      education: (data.education || []).map(edu => ({
+        institution: edu.institution || '',
+        degree: edu.degree || '',
+        duration: edu.duration || edu.period || '',
+        description: Array.isArray(edu.description) ? edu.description.join('\n') : (edu.description || '')
+      })),
+      work_experience: (data.work_experience || data.experiences || []).map(exp => ({
         title: exp.title || exp.role || '',
         company: exp.company || '',
         duration: exp.duration || exp.period || '',
         description: Array.isArray(exp.description) ? exp.description.join('\n') : (exp.description || '')
       })),
+      org_experience: (data.org_experience || []).map(org => ({
+        role: org.role || '',
+        organization: org.organization || '',
+        duration: org.duration || org.period || '',
+        description: Array.isArray(org.description) ? org.description.join('\n') : (org.description || '')
+      })),
       projects: (data.projects || []).map(proj => ({
         name: proj.name || proj.title || '',
         description: proj.description || proj.desc || '',
         technologies: proj.technologies || proj.tags || []
+      })),
+      publications: (data.publications || []).map(pub => ({
+        title: pub.title || '',
+        publisher: pub.publisher || pub.journal || '',
+        date: pub.date || '',
+        link: pub.link || pub.url || '',
+        description: Array.isArray(pub.description) ? pub.description.join('\n') : (pub.description || '')
       })),
       certificates: (data.certificates || []).map(cert => ({
         name: cert.name || cert.title || '',
@@ -105,16 +130,17 @@ const MasterProfile = () => {
 
     try {
       if (file.name.endsWith('.json')) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const data = JSON.parse(event.target.result);
-            processImportedData(data);
-          } catch (err) {
-            setMessage('Failed to parse JSON file.');
-          }
-        };
-        reader.readAsText(file);
+        const text = await file.text();
+        const data = JSON.parse(text);
+        
+        // Check if it's already in the new MasterProfile schema
+        if (data.education !== undefined || data.org_experience !== undefined) {
+          processImportedData(data);
+        } else {
+          // Legacy format or generic JSON, let AI map it
+          const aiData = await extractProfileFromCV(file);
+          processImportedData(aiData);
+        }
       } else if (file.name.endsWith('.pdf')) {
         const data = await extractProfileFromCV(file);
         processImportedData(data);
@@ -137,10 +163,16 @@ const MasterProfile = () => {
         name: dataToMerge.basic_info.name || profile.basic_info.name,
         email: dataToMerge.basic_info.email || profile.basic_info.email,
         phone: dataToMerge.basic_info.phone || profile.basic_info.phone,
-        summary: dataToMerge.basic_info.summary || profile.basic_info.summary
+        summary: dataToMerge.basic_info.summary || profile.basic_info.summary,
+        github: dataToMerge.basic_info.github || profile.basic_info.github,
+        linkedin: dataToMerge.basic_info.linkedin || profile.basic_info.linkedin,
+        portfolio: dataToMerge.basic_info.portfolio || profile.basic_info.portfolio
       },
-      experiences: [...profile.experiences, ...dataToMerge.experiences],
+      education: [...profile.education, ...dataToMerge.education],
+      work_experience: [...profile.work_experience, ...dataToMerge.work_experience],
+      org_experience: [...profile.org_experience, ...dataToMerge.org_experience],
       projects: [...profile.projects, ...dataToMerge.projects],
+      publications: [...profile.publications, ...dataToMerge.publications],
       certificates: [...profile.certificates, ...dataToMerge.certificates]
     };
     

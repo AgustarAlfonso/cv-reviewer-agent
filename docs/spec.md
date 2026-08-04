@@ -103,14 +103,24 @@ Updates the local Master Profile.
 **Request Body:** JSON representation of the Master Profile (experiences, projects, etc.).
 
 ### `POST /profile/extract`
-Extracts profile data from a CV (PDF) using the Gemini AI.
+Extracts profile data from a CV (PDF) or a legacy JSON file using the Gemini AI.
 **Request:**
 - Format: `multipart/form-data`
-- Body: `cv_file` (PDF file)
+- Body: `cv_file` (PDF or JSON file)
 
-**Response:** JSON representation of the extracted Master Profile, ready to be merged on the frontend.
+**Response:** JSON representation of the extracted Master Profile, ready to be merged on the frontend. The response maps the extracted data into the following distinct categories:
+- `education`: Academic history and degrees.
+- `work_experience`: Professional employment.
+- `org_experience`: Volunteer, committee, or student organization roles.
+- `projects`: Technical or personal projects.
+- `publications`: Academic papers or published articles.
+- `certificates`: Courses and certifications.
+
+**Basic Info:**
+The profile also includes a `basic_info` object that stores links to `github`, `linkedin`, and `portfolio`.
 
 ## AI Agent / Prompt Engineering Guidelines
 - Must use structured output (function calling / JSON schema) to ensure a valid JSON response from the LLM, avoiding manual parsing of free text.
 - The prompt must instruct the LLM to provide a score and feedback that is **specific to the CV content**, avoiding generic templates.
+- **Formatting Constraints**: The LLM must be explicitly prompted to return all `description` fields as newline-separated bullet points (starting with `- `). This enables the frontend to automatically render clean HTML lists (`<ul><li>`) instead of unreadable blocks of text.
 - If `job_description` is empty, the LLM should provide a general CV quality analysis (ATS-friendliness, clarity, structure) without keyword comparison.

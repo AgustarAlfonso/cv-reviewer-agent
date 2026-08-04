@@ -125,8 +125,8 @@ async def extract_profile_endpoint(cv_file: UploadFile = File(...)):
     """
     Endpoint to upload a CV (PDF) and extract its data into a Master Profile schema.
     """
-    if cv_file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+    if cv_file.content_type not in ["application/pdf", "application/json", "text/json"] and not cv_file.filename.endswith((".pdf", ".json")):
+        raise HTTPException(status_code=400, detail="Only PDF and JSON files are supported.")
     
     try:
         file_bytes = await cv_file.read()
@@ -134,11 +134,16 @@ async def extract_profile_endpoint(cv_file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=f"Error reading file: {str(e)}")
         
     try:
-        cv_text = extract_text_from_pdf(file_bytes)
+        if cv_file.filename.endswith(".pdf") or cv_file.content_type == "application/pdf":
+            cv_text = extract_text_from_pdf(file_bytes)
+        else:
+            # Assume JSON or text
+            cv_text = file_bytes.decode('utf-8')
+            
         if not cv_text.strip():
-            raise ValueError("No text could be extracted from the PDF.")
+            raise ValueError("No text could be extracted from the file.")
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"PDF parsing error: {str(e)}")
+        raise HTTPException(status_code=422, detail=f"File parsing error: {str(e)}")
         
     try:
         profile_result = extract_profile_from_cv(cv_text)
