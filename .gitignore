@@ -37,9 +37,9 @@ backend/.tox/
 backend/.nox/
 backend/.mypy_cache/
 backend/.ruff_cache/
-backend/.pyre/
 backend/.pytype/
 backend/.cython_workspace/
+backend/master_profile.json
 
 # --- Frontend (Node.js / Next.js / React) ---
 frontend/node_modules/

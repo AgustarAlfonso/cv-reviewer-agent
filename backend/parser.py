@@ -1,3 +1,7 @@
+"""
+Module for parsing PDF files to extract text.
+Uses PyMuPDF (fitz) for text extraction.
+"""
 import fitz  # PyMuPDF
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:

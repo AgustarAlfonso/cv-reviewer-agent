@@ -1,10 +1,18 @@
 import React from 'react';
 import './AnalysisResults.css';
 
+/**
+ * Component to display the AI analysis results.
+ * Renders ATS score, missing keywords, section feedback, and suggestions.
+ * 
+ * @param {Object} props - Component props.
+ * @param {Object|null} props.result - The analysis result object from the API.
+ * @returns {JSX.Element|null} The AnalysisResults component, or null if no result.
+ */
 const AnalysisResults = ({ result }) => {
   if (!result) return null;
 
-  const { ats_score, missing_keywords, section_feedback, suggestions } = result;
+  const { ats_score, missing_keywords, section_feedback, suggestions, profile_recommendations } = result;
 
   // Determine color based on score
   let scoreColor = '#e53e3e'; // Red for low
@@ -64,6 +72,18 @@ const AnalysisResults = ({ result }) => {
           <ul className="suggestions-list">
             {suggestions.map((suggestion, index) => (
               <li key={index}>{suggestion}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {profile_recommendations && profile_recommendations.length > 0 && (
+        <div className="result-card highlight-card">
+          <h3>Master Profile Recommendations 🌟</h3>
+          <p className="card-subtitle">AI suggestions for tailoring your CV using items from your Master Profile.</p>
+          <ul className="suggestions-list">
+            {profile_recommendations.map((rec, index) => (
+              <li key={index}>{rec}</li>
             ))}
           </ul>
         </div>

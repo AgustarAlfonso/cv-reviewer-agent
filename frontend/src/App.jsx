@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
 import UploadForm from './components/UploadForm';
 import AnalysisResults from './components/AnalysisResults';
+import MasterProfile from './components/MasterProfile';
 import { analyzeCV } from './services/api';
 
+/**
+ * Main application component for CVSight.
+ * Manages the state for CV analysis and renders the upload form and results.
+ * 
+ * @returns {JSX.Element} The main App component.
+ */
 function App() {
+  const [activeTab, setActiveTab] = useState('analyzer'); // 'analyzer' or 'profile'
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
 
+  /**
+   * Handles the submission of the CV and job description for analysis.
+   * Updates loading and result states.
+   * 
+   * @param {File} file - The uploaded CV PDF file.
+   * @param {string} jobDescription - The optional job description text.
+   */
   const handleAnalyze = async (file, jobDescription) => {
     setIsLoading(true);
     setResult(null); // Clear previous result
@@ -23,13 +38,37 @@ function App() {
 
   return (
     <div>
-      <h1>CVSight</h1>
-      <p className="app-description">
-        AI-Powered Resume Analyzer. Upload your CV to check its ATS compatibility and get actionable feedback.
-      </p>
-      
-      <UploadForm onAnalyze={handleAnalyze} isLoading={isLoading} />
-      <AnalysisResults result={result} />
+      <header className="app-header">
+        <h1>CVSight</h1>
+        <nav className="tabs">
+          <button 
+            className={`tab-btn ${activeTab === 'analyzer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('analyzer')}
+          >
+            CV Analyzer
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            Master Profile
+          </button>
+        </nav>
+      </header>
+
+      {activeTab === 'analyzer' ? (
+        <main>
+          <p className="app-description">
+            AI-Powered Resume Analyzer. Upload your CV to check its ATS compatibility and get actionable feedback.
+          </p>
+          <UploadForm onAnalyze={handleAnalyze} isLoading={isLoading} />
+          <AnalysisResults result={result} />
+        </main>
+      ) : (
+        <main>
+          <MasterProfile />
+        </main>
+      )}
     </div>
   );
 }

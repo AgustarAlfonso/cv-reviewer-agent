@@ -1,5 +1,9 @@
+"""
+Pydantic schemas for data validation and defining the structured output 
+expected from the Gemini LLM.
+"""
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 class SectionFeedback(BaseModel):
     """Feedback specific to sections of the CV."""
@@ -24,3 +28,40 @@ class AnalysisResponse(BaseModel):
         description="A list of specific, actionable suggestions to improve the CV.",
         default_factory=list
     )
+    profile_recommendations: List[str] = Field(
+        description="A list of specific recommendations on which experiences, projects, or certificates from the Master Profile should be added to or swapped into the CV based on the job description.",
+        default_factory=list
+    )
+
+class BasicInfo(BaseModel):
+    """Basic personal information for the Master Profile."""
+    name: str = ""
+    email: str = ""
+    phone: str = ""
+    summary: str = ""
+
+class Experience(BaseModel):
+    """Work experience entry for the Master Profile."""
+    title: str
+    company: str
+    duration: str = ""
+    description: str
+
+class Project(BaseModel):
+    """Project entry for the Master Profile."""
+    name: str
+    description: str
+    technologies: List[str] = []
+
+class Certificate(BaseModel):
+    """Certificate entry for the Master Profile."""
+    name: str
+    issuer: str
+    date: str = ""
+
+class MasterProfile(BaseModel):
+    """The user's complete Master Profile stored locally."""
+    basic_info: BasicInfo = Field(default_factory=BasicInfo)
+    experiences: List[Experience] = []
+    projects: List[Project] = []
+    certificates: List[Certificate] = []

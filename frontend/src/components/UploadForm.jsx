@@ -1,6 +1,15 @@
 import React, { useState, useRef } from 'react';
 import './UploadForm.css';
 
+/**
+ * Component for uploading a CV and inputting an optional job description.
+ * Features drag-and-drop support.
+ * 
+ * @param {Object} props - Component props.
+ * @param {Function} props.onAnalyze - Callback function triggered when the form is submitted.
+ * @param {boolean} props.isLoading - Whether an analysis is currently in progress.
+ * @returns {JSX.Element} The UploadForm component.
+ */
 const UploadForm = ({ onAnalyze, isLoading }) => {
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState('');

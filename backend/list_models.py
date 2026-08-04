@@ -1,3 +1,7 @@
+"""
+Script to list all available Gemini models that support generateContent.
+Useful for debugging and finding the correct model names to use in analyzer.py.
+"""
 import os
 from google import genai
 from dotenv import load_dotenv

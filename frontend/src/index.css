@@ -37,3 +37,46 @@ h1 {
   color: #4a5568;
   margin-bottom: 3rem;
 }
+
+/* Tabs Styling */
+.app-header {
+  margin-bottom: 2rem;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.tab-btn {
+  background-color: transparent;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #4a5568;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: #2b6cb0;
+}
+
+.tab-btn.active {
+  color: #2b6cb0;
+  border-bottom-color: #2b6cb0;
+  font-weight: 600;
+}
+
+/* Highlight Card for Recommendations */
+.highlight-card {
+  background-color: #ebf8ff !important;
+  border: 1px solid #90cdf4 !important;
+}
+
+.highlight-card h3 {
+  color: #2c5282 !important;
+}
