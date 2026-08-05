@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, X, Combine, Layers } from 'lucide-react';
 
-/**
- * Component for reviewing and selecting imported profile data to merge.
- * 
- * @param {Object} props
- * @param {Object} props.importedProfile - The new data from JSON/PDF
- * @param {Function} props.onMerge - Callback when user confirms merge (passes selected arrays)
- * @param {Function} props.onCancel - Callback to cancel import
- * @returns {JSX.Element}
- */
 const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
-  // We keep track of which items are selected to be merged.
-  // By default, all items are selected.
   const [selectedEducation, setSelectedEducation] = useState([]);
   const [selectedWorkExp, setSelectedWorkExp] = useState([]);
   const [selectedOrgExp, setSelectedOrgExp] = useState([]);
@@ -42,7 +33,7 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
 
   const handleMerge = () => {
     const dataToMerge = {
-      basic_info: importedProfile.basic_info, // We always merge basic info if present
+      basic_info: importedProfile.basic_info,
       education: importedProfile.education.filter((_, i) => selectedEducation.includes(i)),
       work_experience: importedProfile.work_experience.filter((_, i) => selectedWorkExp.includes(i)),
       org_experience: importedProfile.org_experience.filter((_, i) => selectedOrgExp.includes(i)),
@@ -54,146 +45,179 @@ const ImportReviewer = ({ importedProfile, onMerge, onCancel }) => {
     onMerge(dataToMerge);
   };
 
-  return (
-    <div className="import-reviewer">
-      <h3>Review Imported Data</h3>
-      <p className="subtitle">Select the items you want to merge into your Master Profile. Your existing items will not be deleted.</p>
-      
-      {importedProfile.basic_info && (importedProfile.basic_info.name || importedProfile.basic_info.email) && (
-        <div className="reviewer-section">
-          <h4>Basic Information (Will be updated)</h4>
-          <div className="reviewer-card readonly">
-            <p><strong>Name:</strong> {importedProfile.basic_info.name}</p>
-            <p><strong>Email:</strong> {importedProfile.basic_info.email}</p>
-            {importedProfile.basic_info.location && <p><strong>Location:</strong> {importedProfile.basic_info.location}</p>}
+  const SelectableCard = ({ title, subtitle, isSelected, onToggle, children }) => (
+    <label className={`
+      relative block cursor-pointer rounded-2xl border p-5 transition-all overflow-hidden
+      ${isSelected ? 'bg-brand-900/20 border-brand-500' : 'bg-dark-900 border-dark-700 hover:border-dark-500'}
+    `}>
+      <input 
+        type="checkbox" 
+        className="sr-only" 
+        checked={isSelected} 
+        onChange={onToggle} 
+      />
+      <div className="flex items-start gap-4">
+        <div className={`
+          shrink-0 w-6 h-6 rounded flex items-center justify-center transition-colors mt-0.5
+          ${isSelected ? 'bg-brand-500 text-white' : 'border border-dark-600 bg-dark-800'}
+        `}>
+          {isSelected && <Check size={14} strokeWidth={3} />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h5 className="font-display font-medium text-white mb-1 truncate">{title}</h5>
+          {subtitle && <p className="text-sm text-gray-400 mb-2 truncate">{subtitle}</p>}
+          <div className="text-sm text-gray-300 font-light mt-2 line-clamp-2">
+            {children}
           </div>
         </div>
-      )}
+      </div>
+    </label>
+  );
 
-      {importedProfile.skills && importedProfile.skills.length > 0 && (
-        <div className="reviewer-section">
-          <h4>Skills (Will be merged with existing)</h4>
-          <div className="reviewer-card readonly">
-            <div className="tags" style={{ marginTop: '0' }}>
-              {importedProfile.skills.map((skill, idx) => (
-                <span key={idx} className="tag">{skill}</span>
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full max-w-4xl mx-auto pb-24"
+    >
+      <div className="mb-10 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-dark-800 border border-dark-700 shadow-xl mb-6">
+          <Layers className="text-brand-400 w-8 h-8" />
+        </div>
+        <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">Review Imported Data</h2>
+        <p className="text-gray-400 font-light">Select the items you want to merge into your Master Profile. Your existing items will be preserved safely.</p>
+      </div>
+
+      <div className="space-y-10">
+        
+        {importedProfile.basic_info && (importedProfile.basic_info.name || importedProfile.basic_info.email) && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4 flex justify-between items-center">
+              <span>Basic Information</span>
+              <span className="text-xs bg-dark-800 px-2 py-1 rounded text-gray-400">Will be updated</span>
+            </h4>
+            <div className="bg-dark-900 border border-dark-700 rounded-2xl p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><span className="text-gray-500 text-sm block">Name</span> <span className="text-white">{importedProfile.basic_info.name}</span></div>
+                <div><span className="text-gray-500 text-sm block">Email</span> <span className="text-white">{importedProfile.basic_info.email}</span></div>
+                {importedProfile.basic_info.location && <div><span className="text-gray-500 text-sm block">Location</span> <span className="text-white">{importedProfile.basic_info.location}</span></div>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {importedProfile.skills && importedProfile.skills.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4 flex justify-between items-center">
+              <span>Skills</span>
+              <span className="text-xs bg-dark-800 px-2 py-1 rounded text-gray-400">Will be merged</span>
+            </h4>
+            <div className="bg-dark-900 border border-dark-700 rounded-2xl p-6">
+              <div className="flex flex-wrap gap-2">
+                {importedProfile.skills.map((skill, idx) => (
+                  <span key={idx} className="bg-dark-800 border border-dark-700 text-gray-300 px-3 py-1 rounded-lg text-sm">{skill}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {importedProfile.education?.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4">Education ({importedProfile.education.length})</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {importedProfile.education.map((edu, idx) => (
+                <SelectableCard key={idx} title={edu.institution} subtitle={`${edu.degree} (${edu.duration})`} isSelected={selectedEducation.includes(idx)} onToggle={() => toggleSelection(setSelectedEducation, selectedEducation, idx)}>
+                  {edu.description}
+                </SelectableCard>
               ))}
             </div>
           </div>
+        )}
+
+        {importedProfile.work_experience?.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4">Work Experience ({importedProfile.work_experience.length})</h4>
+            <div className="grid grid-cols-1 gap-4">
+              {importedProfile.work_experience.map((exp, idx) => (
+                <SelectableCard key={idx} title={exp.title} subtitle={`${exp.company} • ${exp.duration}`} isSelected={selectedWorkExp.includes(idx)} onToggle={() => toggleSelection(setSelectedWorkExp, selectedWorkExp, idx)}>
+                  {exp.description}
+                </SelectableCard>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {importedProfile.org_experience?.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4">Organization Experience ({importedProfile.org_experience.length})</h4>
+            <div className="grid grid-cols-1 gap-4">
+              {importedProfile.org_experience.map((org, idx) => (
+                <SelectableCard key={idx} title={org.role} subtitle={`${org.organization} • ${org.duration}`} isSelected={selectedOrgExp.includes(idx)} onToggle={() => toggleSelection(setSelectedOrgExp, selectedOrgExp, idx)}>
+                  {org.description}
+                </SelectableCard>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {importedProfile.projects?.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4">Projects ({importedProfile.projects.length})</h4>
+            <div className="grid grid-cols-1 gap-4">
+              {importedProfile.projects.map((proj, idx) => (
+                <SelectableCard key={idx} title={proj.name} isSelected={selectedProjects.includes(idx)} onToggle={() => toggleSelection(setSelectedProjects, selectedProjects, idx)}>
+                  {proj.description}
+                </SelectableCard>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {importedProfile.publications?.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4">Publications ({importedProfile.publications.length})</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {importedProfile.publications.map((pub, idx) => (
+                <SelectableCard key={idx} title={pub.title} subtitle={`${pub.publisher} • ${pub.date}`} isSelected={selectedPublications.includes(idx)} onToggle={() => toggleSelection(setSelectedPublications, selectedPublications, idx)} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {importedProfile.certificates?.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-4">Certificates ({importedProfile.certificates.length})</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {importedProfile.certificates.map((cert, idx) => (
+                <SelectableCard key={idx} title={cert.name} subtitle={`${cert.issuer} • ${cert.date}`} isSelected={selectedCertificates.includes(idx)} onToggle={() => toggleSelection(setSelectedCertificates, selectedCertificates, idx)} />
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* Sticky Bottom Actions */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-dark-900/80 backdrop-blur-xl border-t border-dark-700 z-50 flex justify-center">
+        <div className="w-full max-w-4xl flex justify-between items-center px-4">
+          <button 
+            type="button" 
+            onClick={onCancel}
+            className="flex items-center gap-2 px-6 py-3 rounded-full font-medium text-gray-300 hover:text-white hover:bg-dark-800 transition-colors"
+          >
+            <X size={18} /> Cancel Import
+          </button>
+          <button 
+            type="button" 
+            onClick={handleMerge}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-full font-semibold transition-colors shadow-lg shadow-brand-500/25"
+          >
+            <Combine size={18} /> Merge Selected to Profile
+          </button>
         </div>
-      )}
-
-      <div className="reviewer-section">
-        <h4>Education ({importedProfile.education.length} found)</h4>
-        {importedProfile.education.map((edu, idx) => (
-          <label key={idx} className={`reviewer-card selectable ${selectedEducation.includes(idx) ? 'selected' : ''}`}>
-            <input 
-              type="checkbox" 
-              checked={selectedEducation.includes(idx)} 
-              onChange={() => toggleSelection(setSelectedEducation, selectedEducation, idx)} 
-            />
-            <div className="card-content">
-              <h5>{edu.institution}</h5>
-              <span className="duration">{edu.degree} ({edu.duration})</span>
-            </div>
-          </label>
-        ))}
       </div>
-
-      <div className="reviewer-section">
-        <h4>Work Experience ({importedProfile.work_experience.length} found)</h4>
-        {importedProfile.work_experience.map((exp, idx) => (
-          <label key={idx} className={`reviewer-card selectable ${selectedWorkExp.includes(idx) ? 'selected' : ''}`}>
-            <input 
-              type="checkbox" 
-              checked={selectedWorkExp.includes(idx)} 
-              onChange={() => toggleSelection(setSelectedWorkExp, selectedWorkExp, idx)} 
-            />
-            <div className="card-content">
-              <h5>{exp.title} <span className="company-name">at {exp.company}</span></h5>
-              <span className="duration">{exp.duration}</span>
-            </div>
-          </label>
-        ))}
-      </div>
-
-      <div className="reviewer-section">
-        <h4>Organization Experience ({importedProfile.org_experience.length} found)</h4>
-        {importedProfile.org_experience.map((org, idx) => (
-          <label key={idx} className={`reviewer-card selectable ${selectedOrgExp.includes(idx) ? 'selected' : ''}`}>
-            <input 
-              type="checkbox" 
-              checked={selectedOrgExp.includes(idx)} 
-              onChange={() => toggleSelection(setSelectedOrgExp, selectedOrgExp, idx)} 
-            />
-            <div className="card-content">
-              <h5>{org.role} <span className="company-name">at {org.organization}</span></h5>
-              <span className="duration">{org.duration}</span>
-            </div>
-          </label>
-        ))}
-      </div>
-
-      <div className="reviewer-section">
-        <h4>Projects ({importedProfile.projects.length} found)</h4>
-        {importedProfile.projects.map((proj, idx) => (
-          <label key={idx} className={`reviewer-card selectable ${selectedProjects.includes(idx) ? 'selected' : ''}`}>
-            <input 
-              type="checkbox" 
-              checked={selectedProjects.includes(idx)} 
-              onChange={() => toggleSelection(setSelectedProjects, selectedProjects, idx)} 
-            />
-            <div className="card-content">
-              <h5>{proj.name}</h5>
-              <p className="description-preview">{proj.description.substring(0, 80)}...</p>
-            </div>
-          </label>
-        ))}
-      </div>
-
-      <div className="reviewer-section">
-        <h4>Publications ({importedProfile.publications.length} found)</h4>
-        {importedProfile.publications.map((pub, idx) => (
-          <label key={idx} className={`reviewer-card selectable ${selectedPublications.includes(idx) ? 'selected' : ''}`}>
-            <input 
-              type="checkbox" 
-              checked={selectedPublications.includes(idx)} 
-              onChange={() => toggleSelection(setSelectedPublications, selectedPublications, idx)} 
-            />
-            <div className="card-content">
-              <h5>{pub.title}</h5>
-              <p className="description-preview">{pub.publisher} • {pub.date}</p>
-            </div>
-          </label>
-        ))}
-      </div>
-
-      <div className="reviewer-section">
-        <h4>Certificates ({importedProfile.certificates.length} found)</h4>
-        {importedProfile.certificates.map((cert, idx) => (
-          <label key={idx} className={`reviewer-card selectable ${selectedCertificates.includes(idx) ? 'selected' : ''}`}>
-            <input 
-              type="checkbox" 
-              checked={selectedCertificates.includes(idx)} 
-              onChange={() => toggleSelection(setSelectedCertificates, selectedCertificates, idx)} 
-            />
-            <div className="card-content">
-              <h5>{cert.name}</h5>
-              <p className="issuer">{cert.issuer} • {cert.date}</p>
-            </div>
-          </label>
-        ))}
-      </div>
-
-      <div className="form-actions" style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '30px'}}>
-        <button type="button" className="cancel-button" onClick={onCancel}>
-          Cancel Import
-        </button>
-        <button type="button" className="submit-button save-button" onClick={handleMerge}>
-          Merge to Profile
-        </button>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 
