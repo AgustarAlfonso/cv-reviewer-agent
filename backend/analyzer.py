@@ -143,7 +143,7 @@ CV Text:
 
     raise RuntimeError(f"All models failed due to high demand. Last error: {last_error}")
 
-def generate_cv_from_profile(job_description: str, master_profile: dict) -> StructuredCV:
+def generate_cv_from_profile(job_description: str, master_profile: dict, language: str = "English") -> StructuredCV:
     """
     Generates an ATS-friendly CV structure based on the master profile and a job description.
     """
@@ -173,6 +173,8 @@ OTHER INSTRUCTIONS:
 4. Extract a strong Headline for the header based on the candidate's real background (e.g. "Fresh Graduate | AI Infrastructure & Systems Support") — the headline may reframe emphasis but must not claim a specialization unsupported by the Master Profile.
 5. Format the header links without https:// (e.g. github.com/user).
 6. Pay close attention to the candidate's education description and status. If the profile states they have "graduated", do NOT label them as a "Student" in the headline or summary. Use "Graduate", "Fresh Graduate", or a professional title.
+7. CRITICAL: The ENTIRE CV output (all fields, descriptions, headings, etc.) MUST be written in the {language} language. Translate any content from the Master Profile into {language} if necessary.
+8. LANGUAGE NEUTRALITY: The language parameter only changes the output language — it must NOT change which experiences, projects, or certificates are selected, the level of bullet-point detail, or the professional tone. Apply the same confident, action-verb-driven style and the same content selection criteria regardless of whether the output is in English, Indonesian, or any other language. Do NOT adopt a more humble or academic tone for non-English outputs.
 
 Job Description:
 {job_description}

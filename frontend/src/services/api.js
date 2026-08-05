@@ -162,3 +162,137 @@ export const generateCV = async (jobDescription) => {
   }
 };
 
+/**
+ * Generates an ATS CV Preview (JSON) from the Master Profile based on a job description.
+ * 
+ * @param {string} jobDescription - The job description text to tailor the CV.
+ * @param {string} language - The target language for the CV (e.g. 'English', 'Indonesian').
+ * @returns {Promise<Object>} The structured CV data.
+ * @throws {Error} If the API request fails.
+ */
+export const generatePreview = async (jobDescription, language = 'English') => {
+  const formData = new FormData();
+  if (jobDescription) {
+    formData.append('job_description', jobDescription);
+  }
+  if (language) {
+    formData.append('language', language);
+  }
+
+  try {
+    const response = await axios.post(`${API_BASE_URL}/generate/preview`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error generating CV preview:', error);
+    if (error.response && error.response.data && error.response.data.detail) {
+      throw new Error(error.response.data.detail);
+    }
+    throw new Error('Failed to generate CV preview.');
+  }
+};
+
+/**
+ * Generates an ATS CV (DOCX format) from a StructuredCV JSON object.
+ * Triggers a file download in the browser.
+ * 
+ * @param {Object} structuredCV - The structured CV data.
+ * @throws {Error} If the API request fails.
+ */
+export const downloadCVFromJson = async (structuredCV) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/generate/docx/from-json`, structuredCV, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      responseType: 'blob',
+    });
+    
+    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    let fileName = 'Tailored_CV.docx';
+    const contentDisposition = response.headers['content-disposition'];
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (fileNameMatch && fileNameMatch.length === 2) {
+        fileName = fileNameMatch[1];
+      }
+    }
+    
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    
+  } catch (error) {
+    console.error('Error downloading CV from JSON:', error);
+    if (error.response && error.response.data && error.response.data instanceof Blob) {
+       try {
+           const text = await error.response.data.text();
+           const errData = JSON.parse(text);
+           throw new Error(errData.detail || 'Failed to download CV.');
+       } catch (e) {
+           throw new Error('Failed to download CV.');
+       }
+    }
+    throw new Error('Failed to download the CV.');
+  }
+};
+
+/**
+ * Generates an ATS CV (PDF format) from a StructuredCV JSON object.
+ * Triggers a file download in the browser.
+ * 
+ * @param {Object} structuredCV - The structured CV data.
+ * @throws {Error} If the API request fails.
+ */
+export const downloadCVPdfFromJson = async (structuredCV) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/generate/pdf/from-json`, structuredCV, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      responseType: 'blob',
+    });
+    
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    let fileName = 'Tailored_CV.pdf';
+    const contentDisposition = response.headers['content-disposition'];
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (fileNameMatch && fileNameMatch.length === 2) {
+        fileName = fileNameMatch[1];
+      }
+    }
+    
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    
+  } catch (error) {
+    console.error('Error downloading CV PDF from JSON:', error);
+    if (error.response && error.response.data && error.response.data instanceof Blob) {
+       try {
+           const text = await error.response.data.text();
+           const errData = JSON.parse(text);
+           throw new Error(errData.detail || 'Failed to download CV PDF.');
+       } catch (e) {
+           throw new Error('Failed to download CV PDF.');
+       }
+    }
+    throw new Error('Failed to download the CV PDF.');
+  }
+};

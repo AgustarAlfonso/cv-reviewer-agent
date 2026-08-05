@@ -14,6 +14,7 @@ from schemas import AnalysisResponse, MasterProfile, StructuredCV
 from parser import extract_text_from_pdf
 from analyzer import analyze_cv, extract_profile_from_cv, generate_cv_from_profile
 from docx_generator import create_docx_from_structured_cv
+from pdf_generator import create_pdf_from_structured_cv
 
 # Load environment variables from .env if present
 load_dotenv()
@@ -161,7 +162,7 @@ async def extract_profile_endpoint(cv_file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Profile extraction failed: {str(e)}")
 
 @app.post("/generate/docx")
-async def generate_cv_docx_endpoint(job_description: str = Form(default="")):
+async def generate_cv_docx_endpoint(job_description: str = Form(default=""), language: str = Form(default="English")):
     """
     Endpoint to generate an ATS-friendly CV (.docx) based on the Master Profile and a Job Description.
     """
@@ -178,7 +179,7 @@ async def generate_cv_docx_endpoint(job_description: str = Form(default="")):
         
     try:
         # Generate structured JSON from Gemini
-        structured_cv = generate_cv_from_profile(job_description, master_profile_data)
+        structured_cv = generate_cv_from_profile(job_description, master_profile_data, language=language)
         
         # Convert JSON to DOCX bytes stream
         doc_stream = create_docx_from_structured_cv(structured_cv)
@@ -194,4 +195,104 @@ async def generate_cv_docx_endpoint(job_description: str = Form(default="")):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"CV generation failed: {str(e)}")
+
+@app.post("/generate/preview", response_model=StructuredCV)
+async def generate_cv_preview_endpoint(job_description: str = Form(default=""), language: str = Form(default="English")):
+    """
+    Endpoint to generate an ATS-friendly CV preview (JSON) based on the Master Profile and a Job Description.
+    """
+    master_profile_data = None
+    if os.path.exists(MASTER_PROFILE_PATH):
+        try:
+            with open(MASTER_PROFILE_PATH, "r", encoding="utf-8") as f:
+                master_profile_data = json.load(f)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to read master profile: {str(e)}")
+            
+    if not master_profile_data:
+        raise HTTPException(status_code=400, detail="Master Profile not found. Please create one first.")
+        
+    try:
+        # Generate structured JSON from Gemini
+        structured_cv = generate_cv_from_profile(job_description, master_profile_data, language=language)
+        return structured_cv
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"CV preview generation failed: {str(e)}")
+
+@app.post("/generate/docx/from-json")
+async def generate_cv_docx_from_json_endpoint(structured_cv: StructuredCV):
+    """
+    Endpoint to generate an ATS-friendly CV (.docx) directly from a provided StructuredCV JSON object.
+    """
+    try:
+        # Convert JSON to DOCX bytes stream
+        doc_stream = create_docx_from_structured_cv(structured_cv)
+        
+        # Return as downloadable file
+        return StreamingResponse(
+            doc_stream, 
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": "attachment; filename=Tailored_CV.docx",
+                "Access-Control-Expose-Headers": "Content-Disposition"
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"CV DOCX generation failed: {str(e)}")
+
+@app.post("/generate/pdf")
+async def generate_cv_pdf_endpoint(job_description: str = Form(default=""), language: str = Form(default="English")):
+    """
+    Endpoint to generate an ATS-friendly CV (.pdf) based on the Master Profile and a Job Description.
+    """
+    master_profile_data = None
+    if os.path.exists(MASTER_PROFILE_PATH):
+        try:
+            with open(MASTER_PROFILE_PATH, "r", encoding="utf-8") as f:
+                master_profile_data = json.load(f)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to read master profile: {str(e)}")
+            
+    if not master_profile_data:
+        raise HTTPException(status_code=400, detail="Master Profile not found. Please create one first.")
+        
+    try:
+        # Generate structured JSON from Gemini
+        structured_cv = generate_cv_from_profile(job_description, master_profile_data, language=language)
+        
+        # Convert JSON to PDF bytes stream
+        pdf_stream = create_pdf_from_structured_cv(structured_cv)
+        
+        # Return as downloadable file
+        return StreamingResponse(
+            pdf_stream, 
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": "attachment; filename=Tailored_CV.pdf",
+                "Access-Control-Expose-Headers": "Content-Disposition"
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"CV PDF generation failed: {str(e)}")
+
+@app.post("/generate/pdf/from-json")
+async def generate_cv_pdf_from_json_endpoint(structured_cv: StructuredCV):
+    """
+    Endpoint to generate an ATS-friendly CV (.pdf) directly from a provided StructuredCV JSON object.
+    """
+    try:
+        # Convert JSON to PDF bytes stream
+        pdf_stream = create_pdf_from_structured_cv(structured_cv)
+        
+        # Return as downloadable file
+        return StreamingResponse(
+            pdf_stream, 
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": "attachment; filename=Tailored_CV.pdf",
+                "Access-Control-Expose-Headers": "Content-Disposition"
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"CV PDF generation failed: {str(e)}")
 
