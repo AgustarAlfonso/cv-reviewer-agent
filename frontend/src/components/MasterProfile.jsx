@@ -34,6 +34,13 @@ const MasterProfile = () => {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+  useEffect(() => {
     fetchProfile();
   }, []);
 
@@ -74,7 +81,6 @@ const MasterProfile = () => {
       setProfile(updatedProfile);
       setMessage('Profile saved successfully!');
       setMode('view');
-      setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       console.error(error);
       setMessage('Failed to save profile.');

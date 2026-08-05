@@ -84,8 +84,8 @@ Ensure your response is highly specific to the provided CV content.
         except Exception as e:
             error_str = str(e)
             last_error = error_str
-            if "503" in error_str or "UNAVAILABLE" in error_str:
-                print(f"Model {model_name} is unavailable due to high demand. Falling back to next model...")
+            if "503" in error_str or "UNAVAILABLE" in error_str or "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                print(f"Model {model_name} is unavailable or exhausted quota. Falling back to next model...")
                 continue
             else:
                 # If it's a different error, raise it immediately
@@ -135,8 +135,8 @@ CV Text:
         except Exception as e:
             error_str = str(e)
             last_error = error_str
-            if "503" in error_str or "UNAVAILABLE" in error_str:
-                print(f"Model {model_name} is unavailable due to high demand. Falling back to next model...")
+            if "503" in error_str or "UNAVAILABLE" in error_str or "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                print(f"Model {model_name} is unavailable or exhausted quota. Falling back to next model...")
                 continue
             else:
                 raise RuntimeError(f"Failed to extract profile with Gemini API ({model_name}): {error_str}")
@@ -172,6 +172,7 @@ OTHER INSTRUCTIONS:
 3. Categorize the skills intelligently (e.g. "Systems & Infrastructure", "Programming Languages", "AI / ML") just like the user's template, using only categories/items grounded in the Master Profile.
 4. Extract a strong Headline for the header based on the candidate's real background (e.g. "Fresh Graduate | AI Infrastructure & Systems Support") — the headline may reframe emphasis but must not claim a specialization unsupported by the Master Profile.
 5. Format the header links without https:// (e.g. github.com/user).
+6. Pay close attention to the candidate's education description and status. If the profile states they have "graduated", do NOT label them as a "Student" in the headline or summary. Use "Graduate", "Fresh Graduate", or a professional title.
 
 Job Description:
 {job_description}
@@ -198,8 +199,8 @@ Master Profile:
         except Exception as e:
             error_str = str(e)
             last_error = error_str
-            if "503" in error_str or "UNAVAILABLE" in error_str:
-                print(f"Model {model_name} is unavailable due to high demand. Falling back to next model...")
+            if "503" in error_str or "UNAVAILABLE" in error_str or "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                print(f"Model {model_name} is unavailable or exhausted quota. Falling back to next model...")
                 continue
             else:
                 raise RuntimeError(f"Failed to generate CV with Gemini API ({model_name}): {error_str}")

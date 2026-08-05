@@ -61,9 +61,14 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
   return (
     <form onSubmit={handleSubmit} className="profile-form">
       {/* Basic Info Section */}
-      <section className="form-section">
-        <h3>Basic Information</h3>
-        <div className="form-row">
+      <details className="form-section-accordion" open>
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Basic Information</h3>
+          </div>
+        </summary>
+        <div className="accordion-content">
+          <div className="form-row">
           <div className="form-group">
             <label>Name</label>
             <input type="text" name="name" value={profile.basic_info.name} onChange={handleBasicInfoChange} placeholder="John Doe" />
@@ -101,12 +106,18 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
           <label>Professional Summary</label>
           <textarea name="summary" rows="3" value={profile.basic_info.summary} onChange={handleBasicInfoChange} placeholder="A brief summary of your career..."></textarea>
         </div>
-      </section>
+        </div>
+      </details>
 
       {/* Skills Section */}
-      <section className="form-section">
-        <h3>Skills</h3>
-        <div className="form-group">
+      <details className="form-section-accordion">
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Skills</h3>
+          </div>
+        </summary>
+        <div className="accordion-content">
+          <div className="form-group">
           <label>Your Skills (Comma separated)</label>
           <textarea 
             rows="2" 
@@ -118,14 +129,18 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             placeholder="React.js, JavaScript, Python, Communication..."
           ></textarea>
         </div>
-      </section>
+        </div>
+      </details>
 
       {/* Education Section */}
-      <section className="form-section">
-        <div className="section-header">
-          <h3>Education</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('education', { institution: '', degree: '', duration: '', description: '' })}>+ Add Education</button>
-        </div>
+      <details className="form-section-accordion">
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Education</h3>
+            <button type="button" className="add-btn" onClick={(e) => { e.preventDefault(); addArrayItem('education', { institution: '', degree: '', duration: '', description: '' }); }}>+ Add Education</button>
+          </div>
+        </summary>
+        <div className="accordion-content">
         {profile.education.map((edu, index) => (
           <div key={index} className="array-item-card">
             <button type="button" className="remove-btn" onClick={() => removeArrayItem('education', index)}>✕</button>
@@ -149,15 +164,19 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             </div>
           </div>
         ))}
-        {profile.education.length === 0 && <p className="empty-text">No education added yet.</p>}
-      </section>
+          {profile.education.length === 0 && <p className="empty-text">No education added yet.</p>}
+        </div>
+      </details>
 
       {/* Work Experiences Section */}
-      <section className="form-section">
-        <div className="section-header">
-          <h3>Work Experience</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('work_experience', { title: '', company: '', duration: '', description: '' })}>+ Add Experience</button>
-        </div>
+      <details className="form-section-accordion">
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Work Experience</h3>
+            <button type="button" className="add-btn" onClick={(e) => { e.preventDefault(); addArrayItem('work_experience', { title: '', company: '', duration: '', description: '' }); }}>+ Add Experience</button>
+          </div>
+        </summary>
+        <div className="accordion-content">
         {profile.work_experience.map((exp, index) => (
           <div key={index} className="array-item-card">
             <button type="button" className="remove-btn" onClick={() => removeArrayItem('work_experience', index)}>✕</button>
@@ -181,15 +200,19 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             </div>
           </div>
         ))}
-        {profile.work_experience.length === 0 && <p className="empty-text">No work experiences added yet.</p>}
-      </section>
+          {profile.work_experience.length === 0 && <p className="empty-text">No work experiences added yet.</p>}
+        </div>
+      </details>
 
       {/* Organization Experience Section */}
-      <section className="form-section">
-        <div className="section-header">
-          <h3>Organization Experience</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('org_experience', { role: '', organization: '', duration: '', description: '' })}>+ Add Org Experience</button>
-        </div>
+      <details className="form-section-accordion">
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Organization Experience</h3>
+            <button type="button" className="add-btn" onClick={(e) => { e.preventDefault(); addArrayItem('org_experience', { role: '', organization: '', duration: '', description: '' }); }}>+ Add Org Experience</button>
+          </div>
+        </summary>
+        <div className="accordion-content">
         {profile.org_experience.map((org, index) => (
           <div key={index} className="array-item-card">
             <button type="button" className="remove-btn" onClick={() => removeArrayItem('org_experience', index)}>✕</button>
@@ -213,15 +236,19 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             </div>
           </div>
         ))}
-        {profile.org_experience.length === 0 && <p className="empty-text">No organization experiences added yet.</p>}
-      </section>
+          {profile.org_experience.length === 0 && <p className="empty-text">No organization experiences added yet.</p>}
+        </div>
+      </details>
 
       {/* Projects Section */}
-      <section className="form-section">
-        <div className="section-header">
-          <h3>Projects</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('projects', { name: '', description: '', technologies: [], link: '', repo: '' })}>+ Add Project</button>
-        </div>
+      <details className="form-section-accordion">
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Projects</h3>
+            <button type="button" className="add-btn" onClick={(e) => { e.preventDefault(); addArrayItem('projects', { name: '', description: '', technologies: [], link: '', repo: '' }); }}>+ Add Project</button>
+          </div>
+        </summary>
+        <div className="accordion-content">
         {profile.projects.map((proj, index) => (
           <div key={index} className="array-item-card">
             <button type="button" className="remove-btn" onClick={() => removeArrayItem('projects', index)}>✕</button>
@@ -249,15 +276,19 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             </div>
           </div>
         ))}
-        {profile.projects.length === 0 && <p className="empty-text">No projects added yet.</p>}
-      </section>
+          {profile.projects.length === 0 && <p className="empty-text">No projects added yet.</p>}
+        </div>
+      </details>
 
       {/* Publications Section */}
-      <section className="form-section">
-        <div className="section-header">
-          <h3>Publications</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('publications', { title: '', publisher: '', date: '', link: '', description: '' })}>+ Add Publication</button>
-        </div>
+      <details className="form-section-accordion">
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Publications</h3>
+            <button type="button" className="add-btn" onClick={(e) => { e.preventDefault(); addArrayItem('publications', { title: '', publisher: '', date: '', link: '', description: '' }); }}>+ Add Publication</button>
+          </div>
+        </summary>
+        <div className="accordion-content">
         {profile.publications.map((pub, index) => (
           <div key={index} className="array-item-card">
             <button type="button" className="remove-btn" onClick={() => removeArrayItem('publications', index)}>✕</button>
@@ -287,15 +318,19 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             </div>
           </div>
         ))}
-        {profile.publications.length === 0 && <p className="empty-text">No publications added yet.</p>}
-      </section>
+          {profile.publications.length === 0 && <p className="empty-text">No publications added yet.</p>}
+        </div>
+      </details>
 
       {/* Certificates Section */}
-      <section className="form-section">
-        <div className="section-header">
-          <h3>Certificates</h3>
-          <button type="button" className="add-btn" onClick={() => addArrayItem('certificates', { name: '', issuer: '', date: '', link: '', skills: [] })}>+ Add Certificate</button>
-        </div>
+      <details className="form-section-accordion">
+        <summary>
+          <div className="section-header-accordion">
+            <h3>Certificates</h3>
+            <button type="button" className="add-btn" onClick={(e) => { e.preventDefault(); addArrayItem('certificates', { name: '', issuer: '', date: '', link: '', skills: [] }); }}>+ Add Certificate</button>
+          </div>
+        </summary>
+        <div className="accordion-content">
         {profile.certificates.map((cert, index) => (
           <div key={index} className="array-item-card">
             <button type="button" className="remove-btn" onClick={() => removeArrayItem('certificates', index)}>✕</button>
@@ -325,8 +360,9 @@ const ProfileEditor = ({ initialProfile, onSave, onCancel, isSaving }) => {
             </div>
           </div>
         ))}
-        {profile.certificates.length === 0 && <p className="empty-text">No certificates added yet.</p>}
-      </section>
+          {profile.certificates.length === 0 && <p className="empty-text">No certificates added yet.</p>}
+        </div>
+      </details>
 
       <div className="form-actions" style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
         <button type="button" className="cancel-button" onClick={onCancel} disabled={isSaving}>

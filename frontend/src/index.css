@@ -41,6 +41,13 @@ h1 {
 /* Tabs Styling */
 .app-header {
   margin-bottom: 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #edf2f7;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  margin-top: -1rem;
 }
 
 .tabs {
@@ -59,6 +66,16 @@ h1 {
   color: #4a5568;
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
+}
+
+@media (max-width: 600px) {
+  .tabs {
+    gap: 5px;
+  }
+  .tab-btn {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
 }
 
 .tab-btn:hover {
