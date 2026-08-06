@@ -44,7 +44,30 @@ The Master Profile acts as a central repository for all your skills, experiences
 - `uv` (optional, for fast Python dependency management) or `pip`
 - Google Gemini API Key
 
-## Getting Started
+## Quick Start
+
+```bash
+# Clone the repository
+git clone <repository-url> cv-reviewer-agent
+cd cv-reviewer-agent
+
+# Terminal 1: Backend
+cd backend
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env       # Edit .env and add your GEMINI_API_KEY
+uv run uvicorn main:app --reload
+
+# Terminal 2: Frontend
+cd ../frontend
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Getting Started (Detailed Setup)
 
 ### 1. Clone the Repository
 
@@ -71,11 +94,11 @@ pip install -r requirements.txt
 
 ### 3. Environment Setup
 
-Create a `.env` file in the `backend/` directory based on your configuration:
+Create a `.env` file in the `backend/` directory by copying the example file:
 
 ```bash
 cd backend
-touch .env
+cp .env.example .env
 ```
 
 Configure the following variables in `backend/.env`:

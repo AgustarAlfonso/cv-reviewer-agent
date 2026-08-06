@@ -73,3 +73,6 @@ frontend/.yarn/cache
 frontend/.yarn/unplugged
 frontend/.yarn/build-state.yml
 frontend/.yarn/install-state.gz
+
+# --- Documentation ---
+docs/
