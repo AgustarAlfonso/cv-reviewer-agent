@@ -16,8 +16,8 @@ const UploadForm = ({ onAnalyze, isLoading }) => {
 
   const validateAndSetFile = (selectedFile) => {
     if (selectedFile) {
-      if (selectedFile.type !== 'application/pdf') {
-        setError('Please select a valid PDF file.');
+      if (!selectedFile.name.toLowerCase().endsWith('.pdf') && !selectedFile.name.toLowerCase().endsWith('.docx')) {
+        setError('Please select a valid PDF or DOCX file.');
         setFile(null);
       } else {
         setError('');
@@ -29,7 +29,7 @@ const UploadForm = ({ onAnalyze, isLoading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!file) {
-      setError('A CV (PDF) is required for this option.');
+      setError('A CV (PDF or DOCX) is required for this option.');
       return;
     }
     onAnalyze(file, jobDescription);
@@ -83,7 +83,7 @@ const UploadForm = ({ onAnalyze, isLoading }) => {
           
           <input
             type="file"
-            accept=".pdf"
+            accept=".pdf,.docx"
             onChange={handleFileChange}
             ref={fileInputRef}
             className="hidden"
@@ -117,7 +117,7 @@ const UploadForm = ({ onAnalyze, isLoading }) => {
                   <UploadCloud className={`w-10 h-10 ${isDragging ? 'text-brand-400' : 'text-gray-400 group-hover:text-white'} transition-colors duration-500`} />
                 </div>
                 <h3 className="text-2xl font-display font-medium text-white mb-2">Drop your CV here</h3>
-                <p className="text-gray-400">PDF formats only. Maximum size 10MB.</p>
+                <p className="text-gray-400">PDF and DOCX formats only. Maximum size 10MB.</p>
               </motion.div>
             )}
           </AnimatePresence>

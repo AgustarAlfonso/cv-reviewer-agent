@@ -1,24 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, User, FileText } from 'lucide-react';
 import UploadForm from './components/UploadForm';
 import AnalysisResults from './components/AnalysisResults';
 import MasterProfile from './components/MasterProfile';
 import CVGenerator from './components/CVGenerator';
-import { analyzeCV } from './services/api';
+import SuggestionPreviewModal from './components/SuggestionPreviewModal';
+import { analyzeCV, applySuggestion, generatePreview } from './services/api';
 
 /**
  * Main application component for CVSight.
  * Implements a luxury minimalist dark mode aesthetic with smooth transitions.
+ * Manages the Apply Suggestion flow: click fix → preview before/after → download.
  */
 function App() {
   const [activeTab, setActiveTab] = useState('analyzer'); // 'analyzer', 'profile', 'generator'
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
 
+  // Track the job description used in the last analysis (needed for apply-suggestion)
+  const [lastJobDescription, setLastJobDescription] = useState('');
+
+  // Apply Suggestion state
+  const [applyingIndex, setApplyingIndex] = useState(null);
+  const [applyingType, setApplyingType] = useState(null);
+  const [previewData, setPreviewData] = useState(null); // { suggestion, originalCV, fixedCV }
+
+  // Cached baseline CV — generated once per analysis, reused for all Fix clicks
+  const baselineCVRef = useRef(null);
+
   const handleAnalyze = async (file, jobDescription) => {
     setIsLoading(true);
-    setResult(null); // Clear previous result
+    setResult(null);
+    setPreviewData(null);
+    setLastJobDescription(jobDescription || '');
+    baselineCVRef.current = null; // Reset baseline on new analysis
     
     try {
       const data = await analyzeCV(file, jobDescription);
@@ -28,6 +44,57 @@ function App() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  /**
+   * Handles clicking the "Fix" button on a suggestion or profile recommendation.
+   * 
+   * On first click: generates a baseline CV via /generate/preview, then calls
+   * /apply-suggestion with that baseline so Gemini can make targeted changes.
+   * The baseline is cached for subsequent Fix clicks.
+   *
+   * @param {string} suggestionText - The suggestion text to apply.
+   * @param {string} type - 'suggestion' or 'recommendation'.
+   * @param {number} index - Index of the item in its list.
+   */
+  const handleApplySuggestion = async (suggestionText, type, index) => {
+    // Debounce: don't allow if already applying
+    if (applyingIndex !== null) return;
+
+    setApplyingIndex(index);
+    setApplyingType(type);
+
+    try {
+      // Step 1: Get baseline CV (generate once, cache for reuse)
+      let baseline = baselineCVRef.current;
+      if (!baseline) {
+        baseline = await generatePreview(lastJobDescription, 'English');
+        baselineCVRef.current = baseline;
+      }
+
+      // Step 2: Generate fixed CV with the suggestion applied
+      const fixedCV = await applySuggestion(
+        suggestionText,
+        lastJobDescription,
+        baseline, // Pass baseline so Gemini makes targeted changes
+        'English'
+      );
+
+      setPreviewData({
+        suggestion: suggestionText,
+        originalCV: baseline,
+        fixedCV: fixedCV,
+      });
+    } catch (error) {
+      alert(error.message || 'Failed to apply suggestion.');
+    } finally {
+      setApplyingIndex(null);
+      setApplyingType(null);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewData(null);
   };
 
   const navItems = [
@@ -93,7 +160,12 @@ function App() {
                     transition={{ delay: 0.2 }}
                     className="mt-16"
                   >
-                    <AnalysisResults result={result} />
+                    <AnalysisResults
+                      result={result}
+                      onApplySuggestion={handleApplySuggestion}
+                      applyingIndex={applyingIndex}
+                      applyingType={applyingType}
+                    />
                   </motion.div>
                 )}
               </div>
@@ -125,8 +197,18 @@ function App() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Suggestion Preview Modal */}
+      <SuggestionPreviewModal
+        isOpen={!!previewData}
+        onClose={handleClosePreview}
+        suggestion={previewData?.suggestion || ''}
+        originalCV={previewData?.originalCV}
+        fixedCV={previewData?.fixedCV}
+      />
     </div>
   );
 }
 
 export default App;
+

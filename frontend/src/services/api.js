@@ -296,3 +296,46 @@ export const downloadCVPdfFromJson = async (structuredCV) => {
     throw new Error('Failed to download the CV PDF.');
   }
 };
+
+/**
+ * Applies a single analysis suggestion to generate an improved CV.
+ * Calls POST /apply-suggestion with the suggestion text and context.
+ *
+ * @param {string} suggestion - The suggestion text to apply.
+ * @param {string} [jobDescription=""] - Optional job description for context.
+ * @param {Object|null} [originalCV=null] - Optional current StructuredCV before fix.
+ * @param {string} [language="English"] - Target language for the CV output.
+ * @returns {Promise<Object>} The improved StructuredCV data.
+ * @throws {Error} If the API request fails or rate limit is exceeded.
+ */
+export const applySuggestion = async (suggestion, jobDescription = '', originalCV = null, language = 'English') => {
+  const formData = new FormData();
+  formData.append('suggestion', suggestion);
+
+  if (jobDescription) {
+    formData.append('job_description', jobDescription);
+  }
+
+  if (originalCV) {
+    formData.append('original_cv', JSON.stringify(originalCV));
+  }
+
+  if (language) {
+    formData.append('language', language);
+  }
+
+  try {
+    const response = await axios.post(`${API_BASE_URL}/apply-suggestion`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error applying suggestion:', error);
+    if (error.response && error.response.data && error.response.data.detail) {
+      throw new Error(error.response.data.detail);
+    }
+    throw new Error('Failed to apply suggestion.');
+  }
+};

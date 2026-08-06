@@ -1,8 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertTriangle, XCircle, Sparkles, TrendingUp, Key, ListChecks } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Sparkles, TrendingUp, Key, ListChecks, Zap, Loader2 } from 'lucide-react';
 
-const AnalysisResults = ({ result }) => {
+/**
+ * Displays the structured analysis results in a bento-grid layout.
+ * Each suggestion and profile recommendation can be clicked to trigger auto-fix.
+ *
+ * @param {Object} props
+ * @param {Object} props.result - The AnalysisResponse from the backend.
+ * @param {Function} [props.onApplySuggestion] - Callback when user clicks "Fix" on a suggestion.
+ * @param {number|null} [props.applyingIndex] - Index of the suggestion currently being applied (null if idle).
+ * @param {string|null} [props.applyingType] - Type of the item being applied: 'suggestion' or 'recommendation'.
+ */
+const AnalysisResults = ({ result, onApplySuggestion, applyingIndex = null, applyingType = null }) => {
   if (!result) return null;
 
   const { ats_score, missing_keywords, section_feedback, suggestions, profile_recommendations } = result;
@@ -37,6 +47,9 @@ const AnalysisResults = ({ result }) => {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
   };
+
+  /** Whether any suggestion is currently loading */
+  const isAnyApplying = applyingIndex !== null;
 
   return (
     <motion.div 
@@ -114,12 +127,35 @@ const AnalysisResults = ({ result }) => {
         <motion.div variants={itemVariants} className={`rounded-3xl border border-dark-700 bg-dark-800/80 p-8 ${profile_recommendations?.length > 0 ? 'col-span-1 md:col-span-1' : 'col-span-1 md:col-span-3'}`}>
           <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-6">Actionable Steps</h3>
           <ul className="space-y-4">
-            {suggestions.map((suggestion, index) => (
-              <li key={index} className="flex gap-3 text-gray-300 font-light">
-                <span className="text-brand-500 mt-1 shrink-0">•</span>
-                <span className="leading-relaxed">{suggestion}</span>
-              </li>
-            ))}
+            {suggestions.map((suggestion, index) => {
+              const isThisApplying = applyingType === 'suggestion' && applyingIndex === index;
+              return (
+                <li key={index} className="flex items-start gap-3 text-gray-300 font-light group/item">
+                  <span className="text-brand-500 mt-1 shrink-0">•</span>
+                  <span className="leading-relaxed flex-1">{suggestion}</span>
+                  {onApplySuggestion && (
+                    <button
+                      onClick={() => onApplySuggestion(suggestion, 'suggestion', index)}
+                      disabled={isAnyApplying}
+                      className={`shrink-0 flex items-center justify-center min-w-[90px] gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 mt-0.5 ${
+                        isThisApplying
+                          ? 'bg-brand-600 text-white cursor-wait'
+                          : isAnyApplying
+                            ? 'bg-dark-700 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-dark-700 text-gray-400 opacity-0 group-hover/item:opacity-100 hover:bg-brand-600 hover:text-white cursor-pointer'
+                      }`}
+                      title="Apply this suggestion to generate an improved CV"
+                    >
+                      {isThisApplying ? (
+                        <><Loader2 size={12} className="animate-spin" /> Fixing...</>
+                      ) : (
+                        <><Zap size={12} /> Fix</>
+                      )}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </motion.div>
       )}
@@ -136,12 +172,35 @@ const AnalysisResults = ({ result }) => {
           </h3>
           <p className="text-gray-400 text-sm mb-6 relative z-10 max-w-md">We found these gems in your Master Profile that perfectly match the job requirements.</p>
           <ul className="space-y-4 relative z-10">
-            {profile_recommendations.map((rec, index) => (
-              <li key={index} className="flex gap-3 text-gray-200 bg-dark-900/50 p-4 rounded-xl border border-brand-500/20 backdrop-blur-sm">
-                <span className="text-brand-400 shrink-0 mt-0.5">↳</span>
-                <span className="font-light leading-relaxed">{rec}</span>
-              </li>
-            ))}
+            {profile_recommendations.map((rec, index) => {
+              const isThisApplying = applyingType === 'recommendation' && applyingIndex === index;
+              return (
+                <li key={index} className="flex items-start gap-3 text-gray-200 bg-dark-900/50 p-4 rounded-xl border border-brand-500/20 backdrop-blur-sm group/rec">
+                  <span className="text-brand-400 shrink-0 mt-0.5">↳</span>
+                  <span className="font-light leading-relaxed flex-1">{rec}</span>
+                  {onApplySuggestion && (
+                    <button
+                      onClick={() => onApplySuggestion(rec, 'recommendation', index)}
+                      disabled={isAnyApplying}
+                      className={`shrink-0 flex items-center justify-center min-w-[90px] gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 mt-0.5 ${
+                        isThisApplying
+                          ? 'bg-brand-500 text-white cursor-wait'
+                          : isAnyApplying
+                            ? 'bg-dark-700 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-dark-700/50 text-gray-400 opacity-0 group-hover/rec:opacity-100 hover:bg-brand-500 hover:text-white cursor-pointer'
+                      }`}
+                      title="Apply this recommendation to generate an improved CV"
+                    >
+                      {isThisApplying ? (
+                        <><Loader2 size={12} className="animate-spin" /> Fixing...</>
+                      ) : (
+                        <><Zap size={12} /> Fix</>
+                      )}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </motion.div>
       )}
@@ -150,3 +209,4 @@ const AnalysisResults = ({ result }) => {
 };
 
 export default AnalysisResults;
+

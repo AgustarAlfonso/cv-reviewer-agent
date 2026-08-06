@@ -208,3 +208,98 @@ Master Profile:
                 raise RuntimeError(f"Failed to generate CV with Gemini API ({model_name}): {error_str}")
 
     raise RuntimeError(f"All models failed due to high demand. Last error: {last_error}")
+
+def apply_suggestion_to_cv(
+    suggestion: str,
+    master_profile: dict,
+    job_description: str = "",
+    original_cv: dict = None,
+    language: str = "English"
+) -> StructuredCV:
+    """
+    Generates a new StructuredCV that incorporates a specific suggestion fix.
+
+    The Master Profile remains the single source of truth. The suggestion is used
+    as an instruction to Gemini for what to improve in the generated CV.
+    If an original_cv is provided, Gemini will use it as a baseline and apply
+    targeted modifications rather than generating from scratch.
+
+    Args:
+        suggestion: The specific suggestion text to apply.
+        master_profile: The user's Master Profile data as a dict.
+        job_description: Optional job description for context.
+        original_cv: Optional StructuredCV dict representing the CV before fix.
+        language: Target language for the CV output.
+
+    Returns:
+        StructuredCV: A new CV with the suggestion incorporated.
+    """
+    client = genai.Client()
+    models_to_try = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite"]
+
+    original_cv_section = ""
+    if original_cv:
+        original_cv_section = f"""
+CURRENT CV (before fix):
+{json.dumps(original_cv, indent=2)}
+
+IMPORTANT: Use this current CV as the baseline. Apply ONLY the requested fix below.
+Keep all other sections, wording, and structure as close to the current CV as possible.
+Do NOT rewrite sections that are unrelated to the fix.
+"""
+
+    jd_section = ""
+    if job_description.strip():
+        jd_section = f"""
+Job Description (for context):
+{job_description}
+"""
+
+    prompt = f"""
+You are an expert technical resume writer. Your task is to generate an improved version of a CV by applying ONE specific improvement suggestion.
+
+GROUND-TRUTH RULE (most important — violating this makes the output unusable):
+The Master Profile is the ONLY source of truth about the candidate.
+- Do NOT attribute any tool, technology, language, certification, employer, location, or skill to the candidate unless it is explicitly present in the Master Profile.
+- You may rephrase, reframe, reorder, and select a subset of real Master Profile content. You may NOT introduce new facts.
+- Before finalizing, silently self-check every skill/tool/technology term in your draft against the Master Profile JSON. If a term cannot be located, delete it or replace it with the closest true equivalent.
+
+LOCATION HONESTY:
+- Use the candidate's actual location exactly as given in the Master Profile's basic_info.
+
+THE SPECIFIC FIX TO APPLY:
+"{suggestion}"
+
+Apply this fix thoroughly but surgically. Only change what is necessary to address this specific suggestion. Preserve the rest of the CV structure and content.
+{original_cv_section}{jd_section}
+Master Profile:
+{json.dumps(master_profile, indent=2)}
+
+OUTPUT LANGUAGE: The ENTIRE CV output MUST be written in {language}.
+"""
+
+    last_error = None
+    for model_name in models_to_try:
+        try:
+            print(f"Trying model (apply-suggestion): {model_name}...")
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=StructuredCV,
+                    temperature=0.15,
+                ),
+            )
+            return StructuredCV.model_validate_json(response.text)
+
+        except Exception as e:
+            error_str = str(e)
+            last_error = error_str
+            if "503" in error_str or "UNAVAILABLE" in error_str or "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                print(f"Model {model_name} is unavailable or exhausted quota. Falling back to next model...")
+                continue
+            else:
+                raise RuntimeError(f"Failed to apply suggestion with Gemini API ({model_name}): {error_str}")
+
+    raise RuntimeError(f"All models failed due to high demand. Last error: {last_error}")
