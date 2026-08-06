@@ -6,6 +6,17 @@
 .env.test.local
 .env.production.local
 
+# --- OS Files ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- IDEs and Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
 # --- Backend (Python) ---
 backend/__pycache__/
 backend/*.py[cod]
