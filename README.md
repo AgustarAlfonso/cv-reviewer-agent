@@ -1,6 +1,26 @@
 # CVSight
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3.8+-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=FastAPI&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+</p>
+
 CVSight is an AI-powered MVP tool for analyzing CVs against Job Descriptions using Google Gemini. It allows users to extract their CV into a "Master Profile", analyze how well their profile fits a job description, and generate an ATS-friendly CV (in DOCX or PDF format) tailored to that specific job.
+
+## Screenshots
+
+<div align="center">
+  <img src="docs/masterprofile_blurred.png" alt="Master Profile View" width="800" />
+  <br/><br/>
+  <img src="docs/screencapture-localhost-5173-2026-08-06-23_06_15.png" alt="Analysis Results" width="800" />
+  <br/><br/>
+  <img src="docs/screencapture-localhost-5173-2026-08-06-23_10_08.png" alt="CV Generation" width="800" />
+</div>
+
 
 ## Key Features
 
