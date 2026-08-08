@@ -75,4 +75,7 @@ frontend/.yarn/build-state.yml
 frontend/.yarn/install-state.gz
 
 # --- Documentation ---
-docs/
+docs/_build/
+docs/.docusaurus/
+docs/apply-suggestion.md
+docs/spec.md
