@@ -38,10 +38,10 @@ def create_pdf_from_structured_cv(cv_data: StructuredCV) -> io.BytesIO:
     
     pdf.set_font("Times", size=11)
     contact_p1 = f"{cv_data.header.location}  |  {cv_data.header.phone}  |  {cv_data.header.email}"
-    pdf.cell(0, 5, sanitize_text(contact_p1), align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.multi_cell(0, 5, sanitize_text(contact_p1), align="C", new_x="LMARGIN", new_y="NEXT")
     
     contact_p2 = f"Portfolio: {cv_data.header.portfolio}  |  LinkedIn: {cv_data.header.linkedin}  |  GitHub: {cv_data.header.github}"
-    pdf.cell(0, 5, sanitize_text(contact_p2), align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.multi_cell(0, 5, sanitize_text(contact_p2), align="C", new_x="LMARGIN", new_y="NEXT")
     
     def add_section_heading(text: str):
         pdf.ln(3) # space before
@@ -88,7 +88,7 @@ def create_pdf_from_structured_cv(cv_data: StructuredCV) -> io.BytesIO:
             
             pdf.set_font("Times", style="I", size=11)
             comp_text = f"{exp.company}  |  {exp.duration}  |  {exp.location}"
-            pdf.cell(0, 5, sanitize_text(comp_text), new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(0, 5, sanitize_text(comp_text), new_x="LMARGIN", new_y="NEXT")
             
             if exp.bullets:
                 for bullet in exp.bullets:
@@ -104,7 +104,7 @@ def create_pdf_from_structured_cv(cv_data: StructuredCV) -> io.BytesIO:
             
             pdf.set_font("Times", style="I", size=11)
             tech_text = f"{proj.context}  |  {proj.technologies}  |  {proj.link}"
-            pdf.cell(0, 5, sanitize_text(tech_text), new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(0, 5, sanitize_text(tech_text), new_x="LMARGIN", new_y="NEXT")
             
             if proj.bullets:
                 for bullet in proj.bullets:
@@ -134,7 +134,7 @@ def create_pdf_from_structured_cv(cv_data: StructuredCV) -> io.BytesIO:
             
             pdf.set_font("Times", size=11)
             deg_text = f"{edu.degree}  |  {edu.duration}  |  {edu.gpa}"
-            pdf.cell(0, 5, sanitize_text(deg_text), new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(0, 5, sanitize_text(deg_text), new_x="LMARGIN", new_y="NEXT")
 
     # --- Languages & Other Skills ---
     if cv_data.languages_other:

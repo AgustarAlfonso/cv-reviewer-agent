@@ -46,28 +46,29 @@ The Master Profile acts as a central repository for all your skills, experiences
 
 ## Quick Start
 
-```bash
-# Clone the repository
-git clone <repository-url> cv-reviewer-agent
-cd cv-reviewer-agent
+The easiest way to run the application is using Docker. Ensure you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
 
-# Terminal 1: Backend
-cd backend
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env       # Edit .env and add your GEMINI_API_KEY
-uv run uvicorn main:app --reload
+1. **Clone the repository and prepare the environment:**
+   ```bash
+   git clone <repository-url> cv-reviewer-agent
+   cd cv-reviewer-agent
+   
+   # Setup environment variables
+   cp backend/.env.example backend/.env
+   # Open backend/.env and add your GEMINI_API_KEY
+   ```
 
-# Terminal 2: Frontend
-cd ../frontend
-npm install
-npm run dev
-```
+2. **Run with Docker Compose:**
+   ```bash
+   docker-compose up --build
+   ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+3. **Open the application:**
+   Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
-## Getting Started (Detailed Setup)
+---
+
+## Getting Started (Detailed Manual Setup)
 
 ### 1. Clone the Repository
 

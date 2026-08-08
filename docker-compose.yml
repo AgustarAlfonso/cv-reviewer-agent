@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cvsight-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      # Prevent local .venv from overriding the container's environment
+      - /app/.venv
+      - /app/__pycache__
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      # Load environment variables from the backend's .env file (e.g. GEMINI_API_KEY)
+      - ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cvsight-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      # Prevent local node_modules from overriding the container's node_modules
+      - /app/node_modules
+    environment:
+      # Helps with hot-reloading when using volumes in Docker (especially on Windows)
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+    restart: unless-stopped
