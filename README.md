@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
 </p>
 
-CVSight is an AI-powered MVP tool for analyzing CVs against Job Descriptions using Google Gemini. It allows users to extract their CV into a "Master Profile", analyze how well their profile fits a job description, and generate an ATS-friendly CV (in DOCX or PDF format) tailored to that specific job.
+CVSight is an AI-powered tool for analyzing CVs against Job Descriptions using Google Gemini. It allows users to extract their CV into a "Master Profile", analyze how well their profile fits a job description, and generate an ATS-friendly CV (in DOCX or PDF format) tailored to that specific job.
 
 ## Screenshots
 
