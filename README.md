@@ -70,7 +70,7 @@ The easiest way to run the application is using Docker. Ensure you have [Docker 
 
 1. **Clone the repository and prepare the environment:**
    ```bash
-   git clone <repository-url> cv-reviewer-agent
+   git clone https://github.com/AgustarAlfonso/cv-reviewer-agent
    cd cv-reviewer-agent
    
    # Setup environment variables
@@ -93,7 +93,7 @@ The easiest way to run the application is using Docker. Ensure you have [Docker 
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/AgustarAlfonso/cv-reviewer-agent
 cd cv-reviewer-agent
 ```
 
